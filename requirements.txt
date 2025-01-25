@@ -2,3 +2,5 @@ pandas==2.1.4
 requests==2.31.0
 beautifulsoup4==4.12.3
 pyarrow==14.0.0
+fastapi
+uvicorn
