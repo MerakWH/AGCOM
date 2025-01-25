@@ -17,7 +17,7 @@ import polars as pl
 warnings.filterwarnings('ignore')
 
 
-data = pl.read_parquet(".." + os.sep + "docs"  + os.sep +  "data" + os.sep + "agcomdata.parquet")
+data = pl.read_parquet("/opt/render/project/src/docs/data/agcomdata.parquet")
 data = data.with_columns((pl.col("name") + " " + pl.col("lastname")).alias("fullname"))
 
 data = data.with_columns(
