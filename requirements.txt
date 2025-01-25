@@ -4,3 +4,4 @@ beautifulsoup4==4.12.3
 pyarrow==14.0.0
 fastapi
 uvicorn
+polars
