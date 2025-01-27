@@ -13,11 +13,43 @@ import datetime as dt
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
+import boto3
 import polars as pl
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 warnings.filterwarnings('ignore')
 
 
-data = pl.read_parquet("/opt/render/project/src/docs/data/agcomdata.parquet")
+# Configura le variabili d'ambiente per le credenziali AWS
+AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+REGION_NAME = os.getenv('AWS_REGION', 'eu-north-1')
+BUCKET_NAME = os.getenv('BUCKET_NAME', 'agcom-parquet')
+S3_FILE_PATH = 'agcomdata.parquet'  # percorso del file in S3
+
+def read_parquet_from_s3():
+    try:
+        # Crea il client S3 sincrono usando boto3
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=AWS_ACCESS_KEY,
+            aws_secret_access_key=AWS_SECRET_KEY,
+            region_name=REGION_NAME
+        )
+
+        # Scarica il file da S3
+        response = s3_client.get_object(Bucket=BUCKET_NAME, Key=S3_FILE_PATH)
+        file_data = response['Body'].read()  # Leggi i dati binari
+
+        # Usa Polars per leggere il file Parquet dai dati binari
+        return pl.read_parquet(file_data)
+
+    except (NoCredentialsError, PartialCredentialsError) as e:
+        raise HTTPException(status_code=403, detail="AWS credentials error")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reading from S3: {e}")
+
+
+data = read_parquet_from_s3()
 data = data.with_columns((pl.col("name") + " " + pl.col("lastname")).alias("fullname"))
 
 data = data.with_columns(
