@@ -6,4 +6,5 @@ fastapi
 uvicorn
 polars
 boto3
+botocore
 aioboto3
