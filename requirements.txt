@@ -5,6 +5,6 @@ pyarrow==14.0.0
 fastapi
 uvicorn
 polars
-boto3
-botocore
+boto3==1.26.5
+botocore==1.29.5
 aioboto3

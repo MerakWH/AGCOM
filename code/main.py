@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 import boto3
 import polars as pl
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 warnings.filterwarnings('ignore')
 
 
@@ -42,6 +43,8 @@ def read_parquet_from_s3():
         # Usa Polars per leggere il file Parquet dai dati binari
         return pl.read_parquet(file_data)
 
+    except (NoCredentialsError, PartialCredentialsError) as e:
+        raise HTTPException(status_code=403, detail="AWS credentials error")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading from S3: {e}")
 
