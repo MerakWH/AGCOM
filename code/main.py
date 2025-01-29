@@ -48,9 +48,11 @@ def read_parquet_from_s3():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading from S3: {e}")
 
-
+print("lettura file parquet...")
 data = read_parquet_from_s3()
+print("file letto!")
 data = data.with_columns((pl.col("name") + " " + pl.col("lastname")).alias("fullname"))
+print("colonne modificate!")
 
 data = data.with_columns(
     pl.col("kind").replace({"Parola": "speech", "Notizia": "news"}).alias("kind")
