@@ -145,28 +145,28 @@ async def read_index():
     """
     Serve the home.html file.
     """
-    return FileResponse('templates/home.html')
+    return FileResponse('code/templates/home.html')
 
 @app.get("/index")
 async def read_charts():
     """
     Serve the index.html file.
     """
-    return FileResponse('templates/index.html')
+    return FileResponse('code/templates/index.html')
 
 @app.get("/faq")
 async def read_faq():
     """
     Serve the pages-faq.html file.
     """
-    return FileResponse('templates/pages-faq.html')
+    return FileResponse('code/templates/pages-faq.html')
 
 @app.get("/contact")
 async def contact():
     """
     Serve the pages-contact.html file.
     """
-    return FileResponse('templates/pages-contact.html')
+    return FileResponse('code/templates/pages-contact.html')
 
 # -------------------------------------------------------
 
