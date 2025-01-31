@@ -27,6 +27,8 @@ REGION_NAME = os.getenv('AWS_REGION', 'eu-north-1')
 BUCKET_NAME = os.getenv('BUCKET_NAME', 'agcom-parquet')
 S3_FILE_PATH = 'agcomdata.parquet'  # percorso del file in S3
 
+print("Current Working Directory:", os.getcwd())
+
 def read_parquet_from_s3():
     try:
         # Crea client S3
