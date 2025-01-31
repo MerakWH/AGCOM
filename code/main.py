@@ -16,6 +16,7 @@ from starlette.responses import FileResponse
 import boto3
 import polars as pl
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
+import io
 warnings.filterwarnings('ignore')
 
 
@@ -28,7 +29,7 @@ S3_FILE_PATH = 'agcomdata.parquet'  # percorso del file in S3
 
 def read_parquet_from_s3():
     try:
-        # Crea il client S3 sincrono usando boto3
+        # Crea client S3
         s3_client = boto3.client(
             's3',
             aws_access_key_id=AWS_ACCESS_KEY,
@@ -36,42 +37,42 @@ def read_parquet_from_s3():
             region_name=REGION_NAME
         )
 
-        # Scarica il file da S3
+        # Scarica il file in memoria
         response = s3_client.get_object(Bucket=BUCKET_NAME, Key=S3_FILE_PATH)
-        file_data = response['Body'].read()  # Leggi i dati binari
+        file_stream = io.BytesIO(response['Body'].read())
 
-        # Usa Polars per leggere il file Parquet dai dati binari
-        return pl.read_parquet(file_data)
+        # Legge come LazyFrame
+        return pl.scan_parquet(file_stream)
 
-    except (NoCredentialsError, PartialCredentialsError) as e:
+    except (NoCredentialsError, PartialCredentialsError):
         raise HTTPException(status_code=403, detail="AWS credentials error")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading from S3: {e}")
 
-print("lettura file parquet...")
+# Caricamento Lazy dei dati
 data = read_parquet_from_s3()
-print("file letto!")
-data = data.with_columns((pl.col("name") + " " + pl.col("lastname")).alias("fullname"))
-print("colonne modificate!")
 
-data = data.with_columns(
+# Aggiunge la colonna fullname e modifica "kind"
+data = data.with_columns([
+    (pl.col("name") + " " + pl.col("lastname")).alias("fullname"),
     pl.col("kind").replace({"Parola": "speech", "Notizia": "news"}).alias("kind")
-)
+])
 
-start_date = data.select('day').min().to_series()[0].strftime('%Y/%m/%d')
-end_date = data.select('day').max().to_series()[0].strftime('%Y/%m/%d')
+politicians = data.filter(pl.col("name") != "Soggetto collettivo")
+politicians_list = politicians.select("fullname").unique().collect().to_series().to_list()
+
+political_groups = data.filter(pl.col("name") == "Soggetto collettivo")
+political_groups_list = political_groups.select('lastname').unique().collect().to_series().to_list()
+
+start_date = data.select(pl.min("day")).collect().to_series()[0].strftime('%Y/%m/%d')
+end_date = data.select(pl.max("day")).collect().to_series()[0].strftime('%Y/%m/%d')
 
 kind = ["speech", "news", "both"]
 
-politicians = data.filter(pl.col("name") != "Soggetto collettivo")
-politicians_list = politicians.select('fullname').unique().to_series().to_list()
-political_groups = data.filter(pl.col("name") == "Soggetto collettivo")
-political_groups_list = political_groups.select('lastname').unique().to_series().to_list()
-
-channels = data.select('channel').unique().to_series().to_list()
-programs = data.select('program').unique().to_series().to_list()
-affiliations = data.select('affiliation').unique().to_series().to_list()
-topics = data.select('topic').unique().to_series().to_list()
+channels = data.select("channel").unique().collect().to_series().to_list()
+programs = data.select('program').unique().collect().to_series().to_list()
+affiliations = data.select('affiliation').unique().collect().to_series().to_list()
+topics = data.select('topic').unique().collect().to_series().to_list()
 
 # -------------------------------------------------------
 
@@ -183,7 +184,7 @@ async def get_politicians(
         raise HTTPException(status_code=400, detail="Page and page size must be positive integers.")
 
     politicians_ = filter_data(politicians, start_date_, end_date_, kind_)
-    politicians_ = politicians_.select('fullname').unique().to_series().to_list()
+    politicians_ = politicians_.select('fullname').unique().collect().to_series().to_list()
     politicians_.sort()
 
     # Calcola gli offset per la paginazione
@@ -213,7 +214,7 @@ async def get_political_groups(
         raise HTTPException(status_code=400, detail="Page and page size must be positive integers.")
 
     political_groups_ = filter_data(political_groups, start_date_, end_date_, kind_)
-    political_groups_ = political_groups_.select('lastname').unique().to_series().to_list()
+    political_groups_ = political_groups_.select('lastname').unique().collect().to_series().to_list()
     political_groups_.sort()
 
     # Calcola gli offset per la paginazione
@@ -237,7 +238,7 @@ async def get_channels(
     Return all channels
     """
 
-    channels_ = data.select('channel').unique().to_series().to_list()
+    channels_ = data.select('channel').unique().collect().to_series().to_list()
     channels_.sort()
 
     start = (page - 1) * page_size
@@ -264,7 +265,7 @@ async def get_programs(
             raise HTTPException(status_code=400, detail="Invalid channel")
         filtered_data = filtered_data.filter(pl.col('channel') == channel_)
 
-    programs_ = filtered_data.select('program').unique().to_series().to_list()
+    programs_ = filtered_data.select('program').unique().collect().to_series().to_list()
     programs_.sort()
 
     start = (page - 1) * page_size
@@ -291,7 +292,7 @@ async def get_affiliations(
             raise HTTPException(status_code=400, detail="Invalid politician")
         filtered_data = filtered_data.filter(pl.col('fullname') == politician_)
 
-    affiliations_ = filtered_data.select('affiliation').unique().to_series().to_list()
+    affiliations_ = filtered_data.select('affiliation').unique().collect().to_series().to_list()
     affiliations_.sort()
 
     start = (page - 1) * page_size
@@ -311,7 +312,7 @@ async def get_topics(
     Return all topics
     """
 
-    topics_ = data.select('topic').unique().to_series().to_list()
+    topics_ = data.select('topic').unique().collect().to_series().to_list()
     topics_.sort()
 
     start = (page - 1) * page_size
@@ -371,7 +372,7 @@ async def get_politician_topics(
     end = start + page_size
 
     for t in topics:
-        temp = politician_topics.filter(pl.col('topic') == t)
+        temp = politician_topics.filter(pl.col('topic') == t).collect()
         total = temp.select('duration').sum().to_series().to_list()
         interventions = temp.shape[0]
         final_list.append({"topic": t,
@@ -425,7 +426,7 @@ async def get_political_group_topics(
     end = start + page_size
 
     for t in topics:
-        temp = polgroup_topics.filter(pl.col('topic') == t)
+        temp = polgroup_topics.filter(pl.col('topic') == t).collect()
         total = temp.select('duration').sum().to_series().to_list()
         interventions = temp.shape[0]
         final_list.append({"topic": t,
@@ -481,14 +482,14 @@ async def get_politician_channels(
         filtered_data = filtered_data.filter(pl.col('topic') == topic_)
 
     politician_channels = filter_data(filtered_data, start_date_, end_date_, kind_)
-    channels_list = politician_channels.select('channel').unique().to_series().to_list()
+    channels_list = politician_channels.select('channel').unique().collect().to_series().to_list()
     channels_list.sort()
     final_list = []
     start = (page - 1) * page_size
     end = start + page_size
 
     for c in channels_list:
-        temp = politician_channels.filter(pl.col('channel') == c)
+        temp = politician_channels.filter(pl.col('channel') == c).collect()
         total = temp.select('duration').sum().to_series().to_list()
         interventions = temp.shape[0]
         final_list.append({"channel": c,
@@ -537,14 +538,14 @@ async def get_political_group_channels(
         filtered_data = filtered_data.filter(pl.col('topic') == topic_)
 
     polgroup_channels = filter_data(filtered_data, start_date_, end_date_, kind_)
-    channels_list = polgroup_channels.select('channel').unique().to_series().to_list()
+    channels_list = polgroup_channels.select('channel').unique().collect().to_series().to_list()
     channels_list.sort()
     final_list = []
     start = (page - 1) * page_size
     end = start + page_size
 
     for c in channels_list:
-        temp = polgroup_channels.filter(pl.col('channel') == c)
+        temp = polgroup_channels.filter(pl.col('channel') == c).collect()
         total = temp.select('duration').sum().to_series().to_list()
         interventions = temp.shape[0]
         final_list.append({"channel": c,
@@ -565,7 +566,7 @@ async def get_politicians_affiliation(
     Return how many politicians participate (have participated) in an affiliation
     """
     politicians_affiliation = politicians.filter(pl.col('affiliation') == name)
-    final_list = politicians_affiliation.select('fullname').unique().to_series().to_list()
+    final_list = politicians_affiliation.select('fullname').unique().collect().to_series().to_list()
 
     return { "affiliation": name, "politicians": final_list }
 
@@ -579,7 +580,7 @@ async def get_affiliations_politician(
     """
 
     affiliations_politician = politicians.filter(pl.col('fullname') == name)
-    final_list = affiliations_politician.select('affiliation').unique().to_series().to_list()
+    final_list = affiliations_politician.select('affiliation').unique().collect().to_series().to_list()
 
     return { "politician": name, "affiliations": final_list}
 
@@ -622,7 +623,7 @@ async def get_interventions_political_group(
 
     interventions_polgroup = filter_data(filtered_data, start_date_, end_date_, kind_)
     interventions = interventions_polgroup.shape[0]
-    minutes = interventions_polgroup.select('duration').sum().to_series().to_list()
+    minutes = interventions_polgroup.select('duration').collect().sum().to_series().to_list()
 
     return { "political group": name, "interventions": interventions, "minutes": minutes[0] }
 
@@ -633,8 +634,8 @@ async def get_dates():
     """
     Return the first and last date of the dataset
     """
-    start_date_ = data.select('day').min().to_series()[0].strftime('%Y-%m-%d')
-    end_date_ = data.select('day').max().to_series()[0].strftime('%Y-%m-%d')
+    start_date_ = data.select('day').min().collect().to_series()[0].strftime('%Y-%m-%d')
+    end_date_ = data.select('day').max().collect().to_series()[0].strftime('%Y-%m-%d')
 
     return { "first_date": start_date_, "end_date": end_date_}
 
@@ -694,7 +695,7 @@ async def get_interventions_politician_per_year(
         fy = datetime.strptime(str(first_year), '%Y')
         ly = datetime.strptime(str(first_year + 1), '%Y')
         a = interventions_politician.filter(pl.col('day') >= fy)
-        a = a.filter(pl.col('day') <= ly)
+        a = a.filter(pl.col('day') <= ly).collect()
         years.append(str(first_year))
         interventions.append(a.shape[0])
         minutes.append(a.select('duration').sum().to_series().to_list()[0])
@@ -753,7 +754,7 @@ async def get_interventions_political_group_per_year(
         fy = datetime.strptime(str(first_year), '%Y')
         ly = datetime.strptime(str(first_year + 1), '%Y')
         a = interventions_polgroup.filter(pl.col('day') >= fy)
-        a = a.filter(pl.col('day') <= ly)
+        a = a.filter(pl.col('day') <= ly).collect()
         years.append(first_year)
         interventions.append(a.shape[0])
         minutes.append(a.select('duration').sum().to_series().to_list()[0])
@@ -834,7 +835,7 @@ async def get_interventions_politician_per_day(
             i = []
         else:
             d = datetime.strptime(str(begin_date), "%Y-%m-%d")
-            temp = interventions_politician.filter(pl.col("day") == d)
+            temp = interventions_politician.filter(pl.col("day") == d).collect()
             i.append([begin_date, temp.shape[0]])
             begin_date = begin_date + day
     interventions.append(i)
