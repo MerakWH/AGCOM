@@ -27,8 +27,7 @@ REGION_NAME = os.getenv('AWS_REGION', 'eu-north-1')
 BUCKET_NAME = os.getenv('BUCKET_NAME', 'agcom-parquet')
 S3_FILE_PATH = 'agcomdata.parquet'  # percorso del file in S3
 
-print("Current Working Directory:", os.getcwd())
-print("files in directory /opt/render/project/src: ", os.listdir("/opt/render/project/src"))
+
 def read_parquet_from_s3():
     try:
         # Crea client S3
@@ -139,7 +138,7 @@ app = FastAPI(
     },
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="code/static"), name="static")
 
 @app.get("/")
 async def read_index():
