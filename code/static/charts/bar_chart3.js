@@ -94,8 +94,11 @@ async function barChart3() {
     if (i_data.channels.length == 0) {
       break;
     } else {
-      data.channels.push(i_data["channels"][0]);
-      total_minutes += i_data.channels[0].minutes;
+      while (i_data.channels.length > 0) {
+        let popped_channel = i_data.channels.shift();
+        data.channels.push(popped_channel);
+        total_minutes += popped_channel.minutes;
+      }
     }
   }
   if (total_minutes == 0) {

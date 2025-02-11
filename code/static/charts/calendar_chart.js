@@ -1,4 +1,20 @@
 async function calendarChart() {
+
+  document.querySelector(".card-title").innerHTML =
+    "Analisi Politico <span>/Grafico a Calendario -- Coming soon</span>";
+  document.getElementById("barChart2").style.display = "none";
+  document.getElementById("barChart3").style.display = "none";
+  document.getElementById("stackedBarChart").style.display = "none";
+  document.getElementById("lineChart").style.display = "none";
+  document.getElementById("lineChart2").style.display = "none";
+  document.getElementById("radarChart").style.display = "none";
+  document.getElementById("radarChart2").style.display = "none";
+  document.getElementById("radarChart3").style.display = "none";
+  document.getElementById("barPieChart").style.display = "none";
+  document.getElementById("tableDiv").style.display = "none";
+  document.getElementById("loadingScreen").style.display = "none";
+  return;
+
   var cC = document.getElementById("calendarChart");
   cC.style.display = "block";
   document.getElementById("barChart2").style.display = "none";

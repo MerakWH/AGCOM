@@ -1,4 +1,20 @@
 async function lineChart2() {
+
+  document.querySelector(".card-title").innerHTML =
+  "Confronto Politici <span>/Grafico a Linee 2 -- Coming soon</span>";
+  document.getElementById("barChart2").style.display = "none";
+  document.getElementById("barChart3").style.display = "none";
+  document.getElementById("stackedBarChart").style.display = "none";
+  document.getElementById("calendarChart").style.display = "none";
+  document.getElementById("lineChart").style.display = "none";
+  document.getElementById("radarChart").style.display = "none";
+  document.getElementById("radarChart2").style.display = "none";
+  document.getElementById("radarChart3").style.display = "none";
+  document.getElementById("barPieChart").style.display = "none";
+  document.getElementById("tableDiv").style.display = "none";
+  document.getElementById("loadingScreen").style.display = "none";
+  return;
+
   var lC = document.getElementById("lineChart2");
   lC.style.display = "block";
   document.getElementById("barChart2").style.display = "none";

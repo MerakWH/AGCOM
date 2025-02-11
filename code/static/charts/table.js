@@ -1,4 +1,20 @@
 async function table(tab, still_running) {
+
+  document.querySelector(".card-title").innerHTML =
+  "Analisi Politico <span>/Tabella -- Coming soon</span>";
+  document.getElementById("tableDiv").style.display = "none";
+  document.getElementById("barChart2").style.display = "none";
+  document.getElementById("barChart3").style.display = "none";
+  document.getElementById("stackedBarChart").style.display = "none";
+  document.getElementById("calendarChart").style.display = "none";
+  document.getElementById("lineChart").style.display = "none";
+  document.getElementById("lineChart2").style.display = "none";
+  document.getElementById("radarChart").style.display = "none";
+  document.getElementById("radarChart2").style.display = "none";
+  document.getElementById("radarChart3").style.display = "none";
+  document.getElementById("barPieChart").style.display = "none";
+  return;
+
   document.getElementById("tableDiv").style.display = "none";
   document.getElementById("loadingScreen").style.display = "block";
   document.getElementById("barChart2").style.display = "none";

@@ -93,8 +93,11 @@ async function radarChart() {
       if (data.topics.length == 0) {
         break;
       } else {
-        temp_values.push(data["topics"][0]);
-        total_minutes += data.topics[0].minutes;
+        while (data.topics.length > 0) {
+          let popped_topic = data.topics.shift();
+          temp_values.push(popped_topic);
+          total_minutes += popped_topic.minutes;
+        }
       }
     }
     values.push(temp_values);

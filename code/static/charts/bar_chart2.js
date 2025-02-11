@@ -94,8 +94,11 @@ async function barChart2() {
       if (data.topics.length == 0) {
         break;
       } else {
-        total_minutes += data.topics[0].minutes;
-        values.push(data["topics"][0]);
+        while (data.topics.length > 0) {
+          let popped_topic = data.topics.shift();
+          values.push(popped_topic);
+          total_minutes += popped_topic.minutes;
+        }
       }
     }
     politicians.push(value);
