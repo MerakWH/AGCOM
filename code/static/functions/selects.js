@@ -6,6 +6,8 @@ async function handleOptionChange(radio) {
   }
   const o = document.createElement("option");
   select_pol.appendChild(o);
+  $('#select_pol').select2({placeholder: 'Caricamento...'});
+  document.getElementById("select_pol").disabled = true;
   if (radio.value == "politician") {
     document.getElementById("select_affiliations").disabled = false;
     var i = 1;
@@ -42,11 +44,15 @@ async function handleOptionChange(radio) {
       });
     }
   }
+  document.getElementById("select_pol").disabled = false;
+  $('#select_pol').select2({placeholder: 'Cerca politico/partito'});
 }
 
 //initialize selects (channels, programs, topics, affiliations)
 async function fetchChannels() {
   var select_channels = document.getElementById("select_channels");
+  $('#select_channels').select2({placeholder: 'Caricamento...'});
+  select_channels.disabled = true;
   const o = document.createElement("option");
   select_channels.appendChild(o);
   var i = 1;
@@ -65,10 +71,14 @@ async function fetchChannels() {
       });
     }
   }
+  $('#select_channels').select2({placeholder: 'Cerca canale'});
+  select_channels.disabled = false;
 }
 
 async function fetchPrograms() {
   const select_programs = document.getElementById("select_programs");
+  $('#select_programs').select2({placeholder: 'Caricamento...'});
+  select_programs.disabled = true;
   const o = document.createElement("option");
   select_programs.appendChild(o);
   while (select_programs.options.length > 0) {
@@ -97,9 +107,14 @@ async function fetchPrograms() {
       });
     }
   }
+  $('#select_programs').select2({placeholder: 'Cerca programma'});
+  select_programs.disabled = false;
 }
+
 async function fetchTopics() {
   const select_topics = document.getElementById("select_topics");
+  $('#select_topics').select2({placeholder: 'Caricamento...'});
+  select_topics.disabled = true;
   const o = document.createElement("option");
   select_topics.appendChild(o);
   var i = 1;
@@ -118,10 +133,14 @@ async function fetchTopics() {
       });
     }
   }
+  $('#select_topics').select2({placeholder: 'Cerca argomento'});
+  select_topics.disabled = false;
 }
 
 async function fetchAffiliations() {
   const select_affiliations = document.getElementById("select_affiliations");
+  $('#select_affiliations').select2({placeholder: 'Caricamento...'});
+  select_affiliations.disabled = true;
   const o = document.createElement("option");
   select_affiliations.appendChild(o);
   if ($("#select_pol").val().length > 1) {
@@ -156,4 +175,6 @@ async function fetchAffiliations() {
       }
     }
   }
+  $('#select_affiliations').select2({placeholder: 'Cerca partito'});
+  select_affiliations.disabled = false;
 }
