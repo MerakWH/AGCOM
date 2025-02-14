@@ -255,7 +255,7 @@
 
                 <div class="formPolDiv" style="padding-top: 10px;">
                   <form id="form_pol">
-                    <input type="radio" id="politician" value="politician" name="choose_pol" onclick="handleOptionChange(this)">
+                    <input type="radio" id="politician" value="politician" name="choose_pol" onclick="handleOptionChange(this), fetchAffiliations()">
                     <label for="politician">Politici</label><br>
                     <input type="radio" id="political_group" value="political_group" name="choose_pol" onclick="handleOptionChange(this)">
                     <label for="political_group">Partiti</label>
@@ -272,17 +272,17 @@
                   </select>
                 </div>
                 <div class="searchProgramlDiv" style="padding-top: 10px;">
-                  <select id="select_programs" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running)">
+                  <select id="select_programs" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running), fetchChannels()">
                     <option></option>
                   </select>
                 </div>
-                <div class="searchProgramlDiv" style="padding-top: 10px;">
+                <div class="searchTopiclDiv" style="padding-top: 10px;">
                   <select id="select_topics" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running)">
                     <option></option>
                   </select>
                 </div>
-                <div class="searchProgramlDiv" style="padding-top: 10px;">
-                  <select id="select_affiliations" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running)">
+                <div class="searchAffiliationlDiv" style="padding-top: 10px;">
+                  <select id="select_affiliations" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running), updatePoliticians()">
                     <option></option>
                   </select>
                 </div>

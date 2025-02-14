@@ -233,13 +233,20 @@ async def get_political_groups(
 @app.get("/v1/channels")
 async def get_channels(
     page: int = Query(default=1, description="Page number"),
-    page_size: int = Query(default=15000, description="Page size")
+    page_size: int = Query(default=15000, description="Page size"),
+    program_: str = Query(default = "all", description="Program")
 ):
     """
     Return all channels
     """
+    filtered_data = data
 
-    channels_ = data.select('channel').unique().collect().to_series().to_list()
+    if program_ != "all":
+        if program_ not in programs:
+            raise HTTPException(status_code=400, detail="Invalid program")
+        filtered_data = filtered_data.filter(pl.col('program') == program_)
+
+    channels_ = filtered_data.select('channel').unique().collect().to_series().to_list()
     channels_.sort()
 
     start = (page - 1) * page_size
@@ -566,6 +573,8 @@ async def get_politicians_affiliation(
     """
     Return how many politicians participate (have participated) in an affiliation
     """
+    if name not in affiliations:
+        raise HTTPException(status_code=400, detail="Invalid affiliation")
     politicians_affiliation = politicians.filter(pl.col('affiliation') == name)
     final_list = politicians_affiliation.select('fullname').unique().collect().to_series().to_list()
 
@@ -579,7 +588,8 @@ async def get_affiliations_politician(
     """
     Return how many affiliations a politician have participated in
     """
-
+    if name not in politicians_list:
+        raise HTTPException(status_code=400, detail="Invalid politician")
     affiliations_politician = politicians.filter(pl.col('fullname') == name)
     final_list = affiliations_politician.select('affiliation').unique().collect().to_series().to_list()
 
