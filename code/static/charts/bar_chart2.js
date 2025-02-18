@@ -1,4 +1,13 @@
 async function barChart2() {
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
   var bC = document.getElementById("barChart2");
   bC.style.display = "block";
   document.getElementById("barChart3").style.display = "none";
@@ -23,6 +32,7 @@ async function barChart2() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "Confronto Politici <span>/Grafico a Barre<br><br> You need to select at least a politician/political group to use this chart</span>";
+    functionIsRunning = false;
     return 0;
   }
   barChart2Instance = echarts.init(bC);
@@ -34,6 +44,7 @@ async function barChart2() {
   } else if (pg.checked == true) {
     var t = "/v1/political-group-topics/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
   var final_values = [];
@@ -88,16 +99,24 @@ async function barChart2() {
       url_t;
 
     while (true) {
+      if (controller.signal.aborted) {
+        functionIsRunning = false;
+        return;
+      }
       var url = `${baseUrl}&page=${i}`;
       i++;
       const data = await fetchData(url);
-      if (data.topics.length == 0) {
+      if (!data || data.topics.length == 0) {
         break;
       } else {
+        const lengthData = data.topics.length;
         while (data.topics.length > 0) {
           let popped_topic = data.topics.shift();
           values.push(popped_topic);
           total_minutes += popped_topic.minutes;
+        }
+        if (lengthData < data.page_size){
+          break;
         }
       }
     }
@@ -108,6 +127,7 @@ async function barChart2() {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Bar + Pie Chart</span> <br><br> NO DATA FOUND";
     barChart2Instance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
   var topics = [];
@@ -258,4 +278,5 @@ async function barChart2() {
       barChart2Instance.setOption(option2);
     }
   });
+  functionIsRunning = false;
 }

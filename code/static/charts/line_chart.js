@@ -1,4 +1,13 @@
 async function lineChart() {
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
   var lC = document.getElementById("lineChart");
   lC.style.display = "block";
   document.getElementById("barChart2").style.display = "none";
@@ -23,6 +32,7 @@ async function lineChart() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "Confronto Politici <span>/Grafico a Linee 1 <br><br> You need to select at least a politician/political group to use this chart</span>";
+    functionIsRunning = false;
     return 0;
   }
   lineChartInstance = echarts.init(lC);
@@ -34,6 +44,7 @@ async function lineChart() {
   } else if (pg.checked == true) {
     var t = "/v1/interventions-political-group-per-year/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
   var series = [];
@@ -72,6 +83,10 @@ async function lineChart() {
   const selectedValues = $("#select_pol").val();
   var total_minutes = 0;
   for (const value of selectedValues) {
+    if (controller.signal.aborted) {
+      functionIsRunning = false;
+      return;
+    }
     const url =
       t +
       value +
@@ -86,6 +101,10 @@ async function lineChart() {
       url_p +
       url_t;
     const data = await fetchData(url);
+    if (!data) {
+      functionIsRunning = false;
+      return;
+    }
     total_minutes += data.total;
     years = data["years"];
     var interventions = data["interventions"];
@@ -100,6 +119,7 @@ async function lineChart() {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Bar + Pie Chart</span> <br><br> NO DATA FOUND";
     lineChartInstance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
   option = {
@@ -182,4 +202,5 @@ async function lineChart() {
   };
   lineChartInstance.setOption(option);
   lineChartInstance.hideLoading();
+  functionIsRunning = false;
 }

@@ -1,4 +1,13 @@
 async function barChart3() {
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
   var bC = document.getElementById("barChart3");
   bC.style.display = "block";
   document.getElementById("barChart2").style.display = "none";
@@ -23,6 +32,7 @@ async function barChart3() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "Analisi Politico <span>/Grafico a Barre<br><br> You need to select at least a politician/political group to use this chart</span>";
+    functionIsRunning = false;
     return 0;
   }
   barChart3Instance = echarts.init(bC);
@@ -36,6 +46,7 @@ async function barChart3() {
     var t = "/v1/political-group-channels/";
     var t2 = "/v1/channel-programs-political-group/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
   var url_c = "";
@@ -88,16 +99,24 @@ async function barChart3() {
   var i = 1;
   var total_minutes = 0;
   while (true) {
+    if (controller.signal.aborted) {
+      functionIsRunning = false;
+      return;
+    }
     var url = `${baseUrl}&page=${i}`;
     i++;
     const i_data = await fetchData(url);
-    if (i_data.channels.length == 0) {
+    if (!i_data || i_data.channels.length == 0) {
       break;
     } else {
+      const lengthData = i_data.channels.length;
       while (i_data.channels.length > 0) {
         let popped_channel = i_data.channels.shift();
         data.channels.push(popped_channel);
         total_minutes += popped_channel.minutes;
+      }
+      if (lengthData < i_data.page_size){
+        break;
       }
     }
   }
@@ -105,6 +124,7 @@ async function barChart3() {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Bar Chart</span> <br><br> NO DATA FOUND";
     barChart3Instance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
   var final = [];
@@ -194,6 +214,15 @@ async function barChart3() {
   barChart3Instance.hideLoading();
 
   barChart3Instance.on("click", async function (p) {
+    controller.abort();
+    while(functionIsRunning){
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      if (!controller.signal.aborted){
+        return;
+      }
+    }
+    functionIsRunning = true;
+    controller = new AbortController();
     var check_selection = false;
     var sbC = document.getElementById("stackedBarChart");
     sbC.style.display = "block";
@@ -207,6 +236,10 @@ async function barChart3() {
     stackedBarChartInstance.showLoading();
     var data3 = { channel: "altro", programs: [] };
     var list_channels = [];
+    if (controller.signal.aborted) {
+      functionIsRunning = false;
+      return;
+    }
     if (p.name != "altro") {
       const url3 =
         t2 +
@@ -225,6 +258,10 @@ async function barChart3() {
       data3 = await fetchData(url3);
     } else {
       for (const ch of altro_channels) {
+        if (controller.signal.aborted) {
+          functionIsRunning = false;
+          return;
+        }
         const url3 =
           t2 +
           encodeURIComponent($("#select_pol").val()[0]) +
@@ -237,11 +274,19 @@ async function barChart3() {
           "&kind_=" +
           cb;
         temp_data3 = await fetchData(url3);
+        if (!temp_data3) {
+          functionIsRunning = false;
+          return;
+        }
         temp_data3.programs.forEach((pgrm) => {
           data3.programs.push(pgrm);
           list_channels.push(temp_data3.channel);
         });
       }
+    }
+    if (!data3) {
+      functionIsRunning = false;
+      return;
     }
     var y = [];
     data3.programs.forEach((r) => {
@@ -415,5 +460,7 @@ async function barChart3() {
         });
       }
     });
+    functionIsRunning = false;
   });
+  functionIsRunning = false;
 }

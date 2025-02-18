@@ -1,4 +1,13 @@
 async function radarChart() {
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
   var rC = document.getElementById("radarChart");
   document.getElementById("barChart2").style.display = "none";
   document.getElementById("barChart3").style.display = "none";
@@ -23,6 +32,7 @@ async function radarChart() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "Confronto Politici <span>/Grafico Radar<br><br> You need to select at least a politician/political group to use this chart</span>";
+    functionIsRunning = false;
     return 0;
   }
   radarChartInstance = echarts.init(rC);
@@ -34,6 +44,7 @@ async function radarChart() {
   } else if (pg.checked == true) {
     var t = "/v1/political-group-topics/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
   var politicians = [];
@@ -87,16 +98,24 @@ async function radarChart() {
       url_t;
     var temp_values = [];
     while (true) {
+      if (controller.signal.aborted) {
+        functionIsRunning = false;
+        return;
+      }
       var url = `${baseUrl}&page=${i}`;
       i++;
       const data = await fetchData(url);
-      if (data.topics.length == 0) {
+      if (!data || data.topics.length == 0) {
         break;
       } else {
+        const lengthData = data.topics.length;
         while (data.topics.length > 0) {
           let popped_topic = data.topics.shift();
           temp_values.push(popped_topic);
           total_minutes += popped_topic.minutes;
+        }
+        if (lengthData < data.page_size){
+          break;
         }
       }
     }
@@ -107,6 +126,7 @@ async function radarChart() {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Bar + Pie Chart</span> <br><br> NO DATA FOUND";
     radarChartInstance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
   var minutes = [];
@@ -199,4 +219,5 @@ async function radarChart() {
   };
   radarChartInstance.setOption(option);
   radarChartInstance.hideLoading();
+  functionIsRunning = false;
 }

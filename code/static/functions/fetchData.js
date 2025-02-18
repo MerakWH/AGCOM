@@ -1,13 +1,20 @@
 async function fetchData(url) {
+  if (controller.signal.aborted) return null;
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: controller.signal
+    });
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Errore nel recupero dei dati:", error);
+    if (error.name === "AbortError") {
+    } else {
+      console.error("Errore nel recupero dei dati:", error);
+    }
+    return null;
   }
 }
 
