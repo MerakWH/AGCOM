@@ -25,13 +25,13 @@ async function radarChart() {
     radarChartInstance.dispose();
   }
   document.querySelector(".card-title").innerHTML =
-    "Confronto Politici <span>/Grafico Radar</span>";
+    "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <span> </span>";
   if (
     $("#select_pol").val()[0] == undefined ||
     $("#select_pol").val()[0] == ""
   ) {
     document.querySelector(".card-title").innerHTML =
-      "Confronto Politici <span>/Grafico Radar<br><br> You need to select at least a politician/political group to use this chart</span>";
+      "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br> <br><br><span>É necessario selezionare almeno un politico/partito per utilizzare questo grafico. </span>";
     functionIsRunning = false;
     return 0;
   }

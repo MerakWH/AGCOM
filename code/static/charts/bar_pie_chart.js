@@ -35,7 +35,7 @@ async function barPieChart() {
     barPieChartInstance.dispose();
   }
   document.querySelector(".card-title").innerHTML =
-    "Analisi Canale <span>/Grafico a Barre</span>";
+    "<u>Analisi Canale</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti </span><br><br>Tempo di partecipazione nei programmi <br><br><span>Questo grafico rappresenta la durata degli interventi nei programmi di un canale televisivo riguardo un esponente o gruppo politico negli anni. <br>Le categorie corrispondono ai programmi televisivi all'interno di un canale, mentre i valori indicano il tempo totale degli interventi associati a ciascun programma. <br>Questo grafico consente di analizzare quanto tempo un programma ha dedicato a un politico o partito specifico in un anno, permettendo di confrontare le tendenze dei dati tra diversi anni. <br>Inoltre, viene visualizzato un piccolo grafico a torta che mostra la somma totale del tempo di intervento per ogni politico o partito nel canale durante l'anno selezionato. <br><br>Il grafico è interattivo, permette di nascondere le barre non d’interesse cliccandoci sopra, con la possibilità di ripristinarle tramite il tasto <u>back</u>. <br>È inoltre possibile nascondere uno dei set di dati cliccando sul nome corrispondente nella legenda. </span>";
   if (
     $("#select_pol").val()[0] == undefined ||
     $("#select_pol").val()[0] == "" ||
@@ -43,7 +43,7 @@ async function barPieChart() {
     $("#select_channels").val()[0] == ""
   ) {
     document.querySelector(".card-title").innerHTML =
-      "Analisi Canale <span>/Grafico a Barre<br><br> You need to select at least a politician/political group and a channel to use this chart</span>";
+      "<u>Analisi Canale</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti </span><br><br>Tempo di partecipazione nei programmi <br><br><span>É necessario selezionare almeno un politico/partito e un canale per utilizzare questo grafico. </span>";
     return 0;
   }
   barPieChartInstance = echarts.init(bpC);
@@ -181,7 +181,7 @@ async function barPieChart() {
       series_.push({ data: politicians_list[p][x] });
     });
     series_.push({ data: data_ });
-    var title = url_c + "   " + x;
+    var title = decodeURIComponent(url_c) + "   " + x;
     var f_title = { text: title };
     options.push({ title: f_title, series: series_ });
   }
@@ -228,8 +228,6 @@ async function barPieChart() {
         },
       },
       title: {
-        subtext:
-          "check for every year how much minutes a politician/political group \n talked in all the programs of a selected channel \n and compare up to 4 politician/political groups \n click on a program (bar) to hide it! ",
         left: "center",
         top: "top",
       },

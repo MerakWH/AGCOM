@@ -25,13 +25,13 @@ async function barChart3() {
     barChart3Instance.dispose();
   }
   document.querySelector(".card-title").innerHTML =
-    "Analisi Politico <span>/Grafico a Barre</span>";
+    "<u>Analisi Politico</u> <br><br>Tempo di trasmissione per canale televisivo <br><br><span>Questo grafico mostra il tempo totale degli interventi di un esponente o gruppo politico sui diversi canali televisivi, consente quindi di analizzare quanto tempo un canale dedica a un determinato politico o partito. <br>Le categorie rappresentano i canali presenti nella banca dati, mentre i valori indicano i tempi totali di intervento su ciascun canale. <br><br>Cliccando su una delle barre rappresentanti i canali, si accede a un grafico a barre sovrapposte, che descrive il tempo di trasmissione deidcato all'esponente nei programmi del canale selezionato, mostrando anche gli argomenti trattati nell'intervento.</span>";
   if (
     $("#select_pol").val()[0] == undefined ||
     $("#select_pol").val()[0] == ""
   ) {
     document.querySelector(".card-title").innerHTML =
-      "Analisi Politico <span>/Grafico a Barre<br><br> You need to select at least a politician/political group to use this chart</span>";
+      "<u>Analisi Politico</u> <br><br>Tempo di trasmissione per canale televisivo <br><br><span>É necessario selezionare un politico/partito per utilizzare questo grafico. </span>";
     functionIsRunning = false;
     return 0;
   }
@@ -163,13 +163,6 @@ async function barChart3() {
     new_final_value.push(val.value);
   });
   option = {
-    title: {
-      text: "Interventions in channel",
-      subtext:
-        "check how many minutes a politician talked in every channel, \n click on a channel (bar) to analyze all the programs in that channel!",
-      left: "center",
-      top: "top",
-    },
     xAxis: {
       type: "category",
       data: new_final_channel,

@@ -25,13 +25,13 @@ async function lineChart() {
     lineChartInstance.dispose();
   }
   document.querySelector(".card-title").innerHTML =
-    "Confronto Politici <span>/Grafico a Linee 1</span>";
+    "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br>Interventi annui <br><br><span>Questo grafico rappresenta il numero degli interventi di un esponente o gruppo politico nel corso degli anni, permettendo di analizzare l'andamento della presenza televisiva di un soggetto, individuando eventuali picchi o cali di interesse. <br>Le categorie corrispondono agli anni, mentre i valori indicano il numero totale di interventi e notizie trasmesse durante ciascun anno. <br><br>La legenda in alto consente di nascondere o mostrare i vari insiemi di dati. </span>";
   if (
     $("#select_pol").val()[0] == undefined ||
     $("#select_pol").val()[0] == ""
   ) {
     document.querySelector(".card-title").innerHTML =
-      "Confronto Politici <span>/Grafico a Linee 1 <br><br> You need to select at least a politician/political group to use this chart</span>";
+      "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br>Interventi annui <br><br><span>É necessario selezionare almeno un politico/partito per utilizzare questo grafico. </span>";
     functionIsRunning = false;
     return 0;
   }
@@ -129,11 +129,6 @@ async function lineChart() {
     },
     yAxis: {
       type: "value",
-    },
-    title: {
-      subtext:
-        "check the interventions made per year and compare up to 4 politician/political groups",
-      left: "center",
     },
     grid: {
       top: 150,

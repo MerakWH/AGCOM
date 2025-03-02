@@ -25,13 +25,13 @@ async function barChart2() {
     barChart2Instance.dispose();
   }
   document.querySelector(".card-title").innerHTML =
-    "Confronto Politici <span>/Grafico a Barre</span>";
+    "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br>Argomenti trattati negli interventi <br><br><span>Questo grafico mostra la quantità totale di tempo che un esponente o gruppo politico ha dedicato a diversi argomenti. <br>Le categorie rappresentano i vari argomenti presenti nel dataset, mentre i valori corrispondono ai tempi di trattazione di ciascun argomento. <br><br>Il grafico interattivo offre la possibilità di nascondere barre non d’interesse cliccandoci sopra, con la possibilità di ripristinarle tramite il tasto <u>back</u>. <br>Inoltre, è possibile nascondere un intero set di dati cliccando sul nome corrispondente nella legenda.</span>";
   if (
     $("#select_pol").val()[0] == undefined ||
     $("#select_pol").val()[0] == ""
   ) {
     document.querySelector(".card-title").innerHTML =
-      "Confronto Politici <span>/Grafico a Barre<br><br> You need to select at least a politician/political group to use this chart</span>";
+      "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br>Argomenti trattati negli interventi <br><br><span>É necessario selezionare almeno un politico/partito per utilizzare questo grafico. </span>";
     functionIsRunning = false;
     return 0;
   }
@@ -147,12 +147,6 @@ async function barChart2() {
     series.push({ name: politicians[index], type: "bar", data: m });
   });
   var option = {
-    title: {
-      left: "center",
-      top: "top",
-      subtext:
-        "check how much a politician/political group talked about a certain topic (in minutes), \n and compare up to 4 politician/political groups, \n click on a topic (bar) to hide it!",
-    },
     tooltip: {
       trigger: "axis",
       axisPointer: {
