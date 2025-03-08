@@ -1,3 +1,4 @@
+//function to check if start_date is older than end_date, if yes end_date = start_date
 async function limitEndDate() {
   end_date.min = start_date.value;
   if (

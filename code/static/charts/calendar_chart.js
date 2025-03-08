@@ -1,4 +1,6 @@
 async function calendarChart() {
+  select_pol_length = 1;
+  selectPolLength1();
 
   document.querySelector(".card-title").innerHTML =
     "Analisi Politico <span>/Grafico a Calendario -- Coming soon</span>";

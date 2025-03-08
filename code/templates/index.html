@@ -35,7 +35,7 @@
   <style>
     /* Stile personalizzato per l'altezza del select */
     .select2-container .select2-selection--multiple {
-      min-height: 50px; /* Puoi modificare questa altezza in base alle tue necessità */
+      min-height: 50px;
     }
 
     .select2-container--default .select2-selection--multiple .select2-selection__rendered {
@@ -46,7 +46,7 @@
   
 </head>
 
-
+<!-- ============================== Body ============================== -->
 <body>
 
   <!-- ======= Header ======= -->
@@ -57,9 +57,9 @@
         <img src="static/assets/application/img/logo-agcom.jpg" alt="">
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
-    </div><!-- End Logo -->
+    </div>
 
-  </header><!-- End Header -->
+  </header>
 
 
   <!-- ======= Sidebar ======= -->
@@ -68,7 +68,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link collapsed " href="/">
+        <a class="nav-link collapsed " href="/index">
           <i class="bi bi-grid"></i>
           <span>Home</span>
         </a>
@@ -80,22 +80,22 @@
         </a>
         <ul id="bar-charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#" onclick="barChart3(), selectPolLength1()">
+            <a href="#" onclick="barChart3()">
               <i class="bi-bar-chart-fill"></i><span>Grafico a Barre</span>
             </a>
           </li>
           <li>
-            <a href="#" onclick="calendarChart(), selectPolLength1()">
+            <a href="#" onclick="calendarChart()">
               <i class="bi-calendar4-week"></i><span>Grafico a Calendario</span>
             </a>
           </li>
           <li>
-            <a href="#" onclick="table(tab, still_running), selectPolLength1()">
+            <a href="#" onclick="table(tab, still_running)">
               <i class="bi-table"></i><span>Tabella</span>
             </a>
           </li>
         </ul>
-      </li><!-- End Charts Nav -->
+      </li>
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#line-charts-nav" data-bs-toggle="collapse" href="#">
@@ -103,28 +103,28 @@
         </a>
         <ul id="line-charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#" onclick="barChart2(), selectPolLength4()">
+            <a href="#" onclick="barChart2()">
               <i class="bi-bar-chart-fill"></i><span>Grafico a Barre</span>
             </a>
           </li>
           <li>
-            <a href="#" onclick="lineChart(), selectPolLength4()">
+            <a href="#" onclick="lineChart()">
               <i class="bi-graph-up"></i><span>Grafico a Linee 1</span>
             </a>
           </li>
           <li>
-            <a href="#" onclick="lineChart2(), selectPolLength4()">
+            <a href="#" onclick="lineChart2()">
               <i class="bi-graph-up"></i><span>Grafico a Linee 2</span>
             </a>
           </li>
           <li>
-            <a href="#" onclick="radarChart(), selectPolLength4()">
+            <a href="#" onclick="radarChart()">
               <i class="bi-hexagon"></i><span>Grafico Radar</span>
             </a>
           </li>
           <li>
         </ul>
-      </li><!-- End Charts Nav -->
+      </li>
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#radar-charts-nav" data-bs-toggle="collapse" href="#">
@@ -132,16 +132,16 @@
         </a>
         <ul id="radar-charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#" onclick="barPieChart(), selectPolLength4()">
+            <a href="#" onclick="barPieChart()">
               <i class="bi-bar-chart-fill"></i><span>Grafico a Barre</span>
             </a>
           </li>
-            <a href="#" onclick="radarChart2(), selectPolLength10()">
+            <a href="#" onclick="radarChart2()">
               <i class="bi-hexagon"></i><span>Grafico Radar</span>
             </a>
           </li>
         </ul>
-      </li><!-- End Charts Nav -->
+      </li>
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#other-charts-nav" data-bs-toggle="collapse" href="#">
@@ -149,12 +149,12 @@
         </a>
         <ul id="other-charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#" onclick="radarChart3(), selectPolLength10()">
+            <a href="#" onclick="radarChart3()">
               <i class="bi-hexagon"></i><span>Grafico Radar</span>
             </a>
           </li>
         </ul>
-      </li><!-- End Charts Nav -->
+      </li>
 
       <li class="nav-item">
         <a class="nav-link collapsed " href="/docs">
@@ -168,22 +168,25 @@
           <i class="bi bi-question-circle"></i>
           <span>F.A.Q</span>
         </a>
-      </li><!-- End F.A.Q Page Nav -->
+      </li>
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="contact">
           <i class="bi bi-envelope"></i>
           <span>Contatti</span>
         </a>
-      </li><!-- End Contact Page Nav -->
+      </li>
 
     </ul>
 
   </aside><!-- End Sidebar-->
 
 
+
+  <!-- Main Page -->
   <main id="main" class="main">
 
+    <!-- Title -->
     <div class="pagetitle">
       <h1>Grafici</h1>
       <nav>
@@ -192,20 +195,16 @@
           <li class="breadcrumb-item active">Grafici</li>
         </ol>
       </nav>
-    </div><!-- End Page Title -->
+    </div>
 
     <section class="section dashboard">
       <div class="row">
 
-        <!-- Left side columns -->
+        <!-- Charts Page -->
         <div class="col-lg-8">
           <div class="row">
-
-            <!-- Reports -->
             <div class="col-12">
               <div class="card">
-
-
                 <div class="card-body">
                   <h5 class="card-title">Analisi dei dati di monitoraggio televisivo <span><br><br>Sulla piattaforma di AGCOM vengono semestralmente pubblicati, per essere riutilizzati, i dati elementari di 
                     monitoraggio televisivo, che descrivono gli interventi quotidiani dei vari movimenti e 
@@ -245,80 +244,73 @@
                         </thead>
                       </table>
                     </div>
-
                 </div>
-
               </div>
-            </div><!-- End Reports -->
-
+            </div>
           </div>
-        </div><!-- End Left side columns -->
+        </div><!-- End Charts Page -->
 
-        <!-- Right side columns -->
+
+        <!-- Selection Page -->
         <div class="col-lg-4">
-
-          <!-- SELECTION -->
           <div class="card" style="height: 750px;">
-
             <div class="card-body pb-0">
               <h5 class="card-title">SELEZIONE</span></h5>
+              <div class="formPolDiv" style="padding-top: 10px;">
+                <form id="form_pol">
+                  <input type="radio" id="politician" value="politician" name="choose_pol" onclick="handleOptionChange(this)">
+                  <label for="politician">Politici</label><br>
+                  <input type="radio" id="political_group" value="political_group" name="choose_pol" onclick="handleOptionChange(this)">
+                  <label for="political_group">Partiti</label>
+                </form>
+              </div>
+              <div class="searchPolDiv" style="padding-top: 10px;">
+                <select id="select_pol" style="width: 100%;" multiple="multiple">
+                  <option></option>
+                </select>
+              </div>
+              <div class="searchChannelDiv" style="padding-top: 10px;">
+                <select id="select_channels" style="width: 100%;" multiple="multiple">
+                  <option></option>
+                </select>
+              </div>
+              <div class="searchProgramlDiv" style="padding-top: 10px;">
+                <select id="select_programs" style="width: 100%;" multiple="multiple">
+                  <option></option>
+                </select>
+              </div>
+              <div class="searchTopiclDiv" style="padding-top: 10px;">
+                <select id="select_topics" style="width: 100%;" multiple="multiple">
+                  <option></option>
+                </select>
+              </div>
+              <div class="searchAffiliationlDiv" style="padding-top: 10px;">
+                <select id="select_affiliations" style="width: 100%;" multiple="multiple">
+                  <option></option>
+                </select>
+              </div>
 
-                <div class="formPolDiv" style="padding-top: 10px;">
-                  <form id="form_pol">
-                    <input type="radio" id="politician" value="politician" name="choose_pol" onclick="handleOptionChange(this), fetchAffiliations()">
-                    <label for="politician">Politici</label><br>
-                    <input type="radio" id="political_group" value="political_group" name="choose_pol" onclick="handleOptionChange(this)">
-                    <label for="political_group">Partiti</label>
-                  </form>
-                </div>
-                <div class="searchPolDiv" style="padding-top: 10px;">
-                  <select id="select_pol" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running), fetchAffiliations()">
-                    <option></option>
-                  </select>
-                </div>
-                <div class="searchChannelDiv" style="padding-top: 10px;">
-                  <select id="select_channels" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running), fetchPrograms()">
-                    <option></option>
-                  </select>
-                </div>
-                <div class="searchProgramlDiv" style="padding-top: 10px;">
-                  <select id="select_programs" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running), fetchChannels()">
-                    <option></option>
-                  </select>
-                </div>
-                <div class="searchTopiclDiv" style="padding-top: 10px;">
-                  <select id="select_topics" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running)">
-                    <option></option>
-                  </select>
-                </div>
-                <div class="searchAffiliationlDiv" style="padding-top: 10px;">
-                  <select id="select_affiliations" style="width: 100%;" multiple="multiple" onchange="updateCharts(tab, still_running), updatePoliticians()">
-                    <option></option>
-                  </select>
-                </div>
-            
-                <div class="searchDate" style="padding-top: 20px;">
-                  <p>da: <input type="date" onkeydown="return false;" id="start_date" onchange="limitEndDate(), updateCharts(tab, still_running)"/></p>  
-                  <p>a: <input type="date" onkeydown="return false;" id="end_date" onchange="updateCharts(tab, still_running)"/></p>
-                </div>
-            
-                <div>
-                  <form id="cb">
-                    <input type="checkbox" id="news" value="news" name="choose_type" checked onclick="changeType()" onchange="updateCharts(tab, still_running)">
-                    <label for="news">Notizie</label><br>
-                    <input type="checkbox" id="speech" value="speech" name="choose_type" checked onclick="changeType()" onchange="updateCharts(tab, still_running)">
-                    <label for="speech">Interventi</label>
-                  </form>
-                </div>
+              <div class="searchDate" style="padding-top: 20px;">
+                <p>da: <input type="date" onkeydown="return false;" id="start_date" onchange="limitEndDate(), updateCharts(tab, still_running)"/></p>  
+                <p>a: <input type="date" onkeydown="return false;" id="end_date" onchange="updateCharts(tab, still_running)"/></p>
+              </div>
 
+              <div>
+                <form id="cb">
+                  <input type="checkbox" id="news" value="news" name="choose_type" checked onclick="changeType()" onchange="updateCharts(tab, still_running)">
+                  <label for="news">Notizie</label><br>
+                  <input type="checkbox" id="speech" value="speech" name="choose_type" checked onclick="changeType()" onchange="updateCharts(tab, still_running)">
+                  <label for="speech">Interventi</label>
+                </form>
+              </div>
+            </div>
           </div>
-
-        </div><!-- End Right side columns -->
-
+        </div><!-- End Selection Page -->
       </div>
     </section>
 
-  </main><!-- End #main -->
+  </main><!-- End Main Page -->
+
 
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
@@ -343,13 +335,18 @@
   <script src="static/assets/application/js/main.js"></script>
 
 
+
+
+  <!-- ============================== Script ============================== -->
   <script>
     
-    let functionIsRunning = false;
-    let controller = new AbortController();
+    let functionIsRunning = false;                  //variable to check if another chart function is running
+    let controller = new AbortController();         //controller to abort useless running chart functions
 
+    //when document is ready
     $(document).ready(function() {
 
+      //defining selects
       $('#select_pol').select2({
         placeholder: 'Cerca politico/partito',
         maximumSelectionLength: 10,
@@ -358,29 +355,72 @@
                 return "Seleziona un opzione tra partiti e politici";
             }
         }
+      }).on('select2:select', () => {
+        updateCharts(tab, still_running);
+        fetchAffiliations();
+      }).on('select2:unselect', () => {
+        updateCharts(tab, still_running);
+        fetchAffiliations();
       });
+
+
       $('#select_channels').select2({
         placeholder: 'Cerca canale',
         maximumSelectionLength: 1
+      }).on('select2:select', () => {
+        updateCharts(tab, still_running);
+        fetchPrograms();
+      }).on('select2:unselect', () => {
+        updateCharts(tab, still_running);
+        fetchPrograms();
       });
+
+
       $('#select_programs').select2({
         placeholder: 'Cerca programma',
         maximumSelectionLength: 1
-      });
-      $('#select_topics').select2({
-        placeholder: 'Cerca argomento',
-        maximumSelectionLength: 1
-      });
-      $('#select_affiliations').select2({
-        placeholder: 'Cerca partito',
-        maximumSelectionLength: 1
+      }).on('select2:select', () => {
+        updateCharts(tab, still_running);
+        fetchChannels();
+      }).on('select2:unselect', () => {
+        updateCharts(tab, still_running);
+        fetchChannels();
       });
 
+
+      $('#select_topics').select2({
+        placeholder: 'Cerca argomento',
+        maximumSelectionLength: 1,
+      }).on('select2:select', () => {
+        updateCharts(tab, still_running);
+      }).on('select2:unselect', () => {
+        updateCharts(tab, still_running);
+      });
+
+
+      $('#select_affiliations').select2({
+        placeholder: 'Cerca partito',
+        maximumSelectionLength: 1,
+        language: {
+            noResults: function() {
+                return "Seleziona l'opzione politici per filtrare secondo partito";
+            }
+        }
+      }).on('select2:select', () => {
+        updateCharts(tab, still_running);
+        updatePoliticians();
+      }).on('select2:unselect', () => {
+        updateCharts(tab, still_running);
+        updatePoliticians();
+      });
+
+      //initializing selects
       fetchChannels();
       fetchPrograms();
       fetchTopics();
       fetchAffiliations();
 
+      //initializing date selector
       fetchData("/v1/dates").then(result => {
         start_date.value = result["first_date"];
         start_date.min = result["first_date"];
@@ -392,21 +432,24 @@
 
     });
 
-
+    //creating Array with all possible topics
     const TOPICS = [];
     (async () => {
-      const fetchedTopics = await fetchTopics();
+      const fetchedTopics = await fetchTopicsArray();
       TOPICS.push(...fetchedTopics); 
     })();
 
+    //saving date selectors in a variable for future initialization
     const start_date = document.getElementById("start_date");
     const end_date = document.getElementById("end_date");
 
-    var cb = "both";
+    var cb = "both";                  //variable to know if news-speech are selected
+    var select_pol_length = 10;       //variable to know max number of politicians you can select 
 
     var tab = $("#table").DataTable();
     var still_running = true;
 
+    //charts instances
     var radarChartInstance = null;
     var radarChart2Instance = null;
     var radarChart3Instance = null;
@@ -418,6 +461,7 @@
     var barPieChartInstance = null;
     var calendarChartInstance = null;
 
+    //functions to resize charts
     const select = (el, all = false) => {
       el = el.trim();
       if (all) {
@@ -467,8 +511,7 @@
       }
     }
 
-
-  </script>
+  </script> <!-- End Script -->
 
   <script src="/static/charts/bar_chart2.js"></script>
   <script src="/static/charts/bar_chart3.js"></script>
@@ -488,4 +531,3 @@
 
 
 </body>
-

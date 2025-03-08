@@ -1,232 +1,232 @@
-// initializing politicians/political group list (select)
-async function handleOptionChange(radio) {
+async function handleOptionChange(radio) {                      // initializing politicians/political group list when radio is clicked
   const select_pol =  $('#select_pol');
-  select_pol.prop('disabled', true).select2({
+  const select_affiliations = $("#select_affiliations");
+  select_pol.prop('disabled', true).select2({                   //empty the select and block it while loading
     placeholder: 'Caricamento...'
   });
   $('#select_pol').empty();
-  if (radio.value == "politician") {
-    document.getElementById("select_affiliations").disabled = false;
-    if (
-      $("#select_affiliations").val()[0] != undefined &&
-      $("#select_affiliations").val()[0] != ""
-    ) {
-      var selected_affiliation = "";
-      selected_affiliation += `${encodeURIComponent($("#select_affiliations").val()[0])}`;
-      var url = "/v1/politicians-affiliation/" + selected_affiliation;
+
+  if (radio.value == "politician") {                            //if politician was selected
+    if (                                                        //if an affiliation is selected
+      select_affiliations.val()[0] != undefined &&
+      select_affiliations.val()[0] != ""
+    ) {                                                         //serach only the politicians that participated in that affiliation
+      var affiliation_url = `${encodeURIComponent(select_affiliations.val()[0])}`;
+      var url = "/v1/politicians-affiliation/" + affiliation_url;
       const data = await fetchData(url);
       data["politicians"].forEach((valore) => {
         const option = new Option(valore, valore, false, false);
         select_pol.append(option);
       });
-    }else{
+    }else{                                                      //if no affiliation is selected, search every politician
       var i = 1;
       while (true) {
         var url = "/v1/politicians" + `?page=${i}`;
-        i++;
         const data = await fetchData(url);
-        if (data.politicians.length === 0) break;
         data["politicians"].forEach((valore) => {
           const option = new Option(valore, valore, false, false);
           select_pol.append(option);
         });
+        if (data["politicians"].length < data["page_size"]) break;
+        i++;
       }
+      fetchAffiliations();
     }
-  } else if (radio.value == "political_group") {
-    document.getElementById("select_affiliations").disabled = true;
-    $("#select_affiliations").empty();
+
+  } else if (radio.value == "political_group") {                //else if political group was selected
+    select_affiliations.prop('disabled', true).select2({        //disable affiliation select
+      placeholder: '-'
+    });
+    select_affiliations.empty();
+
     var i = 1;
     while (true) {
       var url = "/v1/political-groups" + `?page=${i}`;
-      i++;
       const data = await fetchData(url);
-      if (data["political groups"].length === 0) break;
-      data["political groups"].forEach((valore) => {
+      data["political_groups"].forEach((valore) => {
         const option = new Option(valore, valore, false, false);
         select_pol.append(option);
       });
+      if (data["political_groups"].length < data["page_size"]) break;
+      i++;
     }
   }
-  select_pol.prop('disabled', false).select2({
-    placeholder: 'Cerca politico/partito'
+
+  select_pol.prop('disabled', false).select2({                  //re-enable select politician/political group
+    placeholder: 'Cerca politico/partito',
+    maximumSelectionLength: select_pol_length
   });
 }
 
-let isUpdating = false;
-let firtInitialization = [false, false];
 
-//initialize selects (channels, programs, topics, affiliations)
 async function fetchChannels() {
-  if (isUpdating && firtInitialization[0]) return;
-  firtInitialization[0] = true;
-  isUpdating = true;
-  const old_value = $("#select_channels").val()[0];
-  var select_channels = $('#select_channels');
-  select_channels.prop('disabled', true).select2({
+  const select_channels = $('#select_channels');
+  const old_value = select_channels.val()[0];                   //remember eventual channel that was selected
+  select_channels.prop('disabled', true).select2({              //empty the select and block it while loading
     placeholder: 'Caricamento...'
   });
-  $('#select_channels').empty();
-  var i = 1;
-  var selected_program = "";
+  select_channels.empty();
+
+  var selected_program = "";                                    //if a program is selected, use it for filtering channels in the url
   if (
     $("#select_programs").val()[0] != undefined &&
     $("#select_programs").val()[0] != ""
   ) {
     selected_program = `&program_=${encodeURIComponent($("#select_programs").val()[0])}`
-    }
-  while (true) {
+  }
+
+  var i = 1;
+  while (true) {                                                //retrieve channels
     var url = "/v1/channels" + `?page=${i}` + selected_program;
-    i++;
-    const result = await fetchData(url);
-    if (result.channels.length === 0) break;
-    result.channels.forEach((valore) => {
+    const data = await fetchData(url);
+    data["channels"].forEach((valore) => {
       const option = new Option(valore, valore, false, false);
       select_channels.append(option);
     });
+    if (data["channels"].length < data["page_size"]) break;
+    i++;
   }
-  select_channels.prop('disabled', false).select2({
-    placeholder: 'Cerca canale'
+
+  select_channels.prop('disabled', false).select2({             //re-enable select channels
+    placeholder: 'Cerca canale',
+    maximumSelectionLength: 1
   });
-  if (old_value != undefined){
-    select_channels.onchange = null;
-    select_channels.value = old_value;
-    $('#select_channels').val(old_value).trigger('change');
-    select_channels.onchange = function() {
-        updateCharts(tab, still_running);
-        fetchPrograms();
-    };
+
+  if (old_value != undefined){                                  //if there was a channel selected
+    select_channels.val(old_value).trigger('change');           //re-save it in the select
   }
-  isUpdating = false;
 }
 
+
 async function fetchPrograms() {
-  if (isUpdating && firtInitialization[1]) return;
-  firtInitialization[1] = true;
-  isUpdating = true;
-  const old_value = $("#select_programs").val()[0];
-  var select_programs = $('#select_programs');
-  select_programs.prop('disabled', true).select2({
+  const select_programs = $('#select_programs');
+  const old_value = select_programs.val()[0];                   //remember eventual program that was selected
+  select_programs.prop('disabled', true).select2({              //empty the select and block it while loading
     placeholder: 'Caricamento...'
   });
-  $('#select_programs').empty();
-  var i = 1;
-  var selected_channel = "";
+  select_programs.empty();
+
+  var selected_channel = "";                                    //if a channel is selected, use it for filtering programs in the url
   if (
     $("#select_channels").val()[0] != undefined &&
     $("#select_channels").val()[0] != ""
   ) {
     selected_channel += `&channel_=${encodeURIComponent($("#select_channels").val()[0])}`;
   }
-  while (true) {
+
+  var i = 1;
+  while (true) {                                                //retrieve programs
     var url = "/v1/programs" + `?page=${i}` + selected_channel;
-    i++;
-    const result = await fetchData(url);
-    if (result.programs.length === 0) break;
-    result.programs.forEach((valore) => {
+    const data = await fetchData(url);
+    data["programs"].forEach((valore) => {
       const option = new Option(valore, valore, false, false);
       select_programs.append(option);
     });
+    if (data["programs"].length < data["page_size"]) break;
+    i++;
   }
-  select_programs.prop('disabled', false).select2({
-    placeholder: 'Cerca programma'
+
+  select_programs.prop('disabled', false).select2({             //re-enable select programs
+    placeholder: 'Cerca programma',
+    maximumSelectionLength: 1
   });
-  if (old_value != undefined){
-    select_programs.onchange = null;
-    select_programs.value = old_value;
-    $('#select_programs').val(old_value).trigger('change');
-    select_programs.onchange = function() {
-        updateCharts(tab, still_running);
-        fetchChannels();
-    };
+
+  if (old_value != undefined){                                  //if there was a program selected
+    select_programs.val(old_value).trigger('change');           //re-save it in the select
   }
-  isUpdating = false;
 }
+
 
 async function fetchTopics() {
-  const select_topics = document.getElementById("select_topics");
-  $('#select_topics').data('select2').$container.find('.select2-search__field').attr('placeholder', 'Caricamento...');
-  select_topics.disabled = true;
-  const o = document.createElement("option");
-  select_topics.appendChild(o);
+  const select_topics = $('#select_topics');
+  select_topics.prop('disabled', true).select2({                //empty the select and block it while loading
+    placeholder: 'Caricamento...'
+  });
+  select_topics.empty();
+
   var i = 1;
-  while (true) {
+  while (true) {                                                //retrieve data
     var url = "/v1/topics" + `?page=${i}`;
+    const data = await fetchData(url);
+    data["topics"].forEach((valore) => {                        //insert data in select
+      const option = new Option(valore, valore, false, false);
+      select_topics.append(option);
+    });
+    if (data["topics"].length < data["page_size"]) break;
     i++;
-    const result = await fetchData(url);
-    if (result.topics.length == 0) {
-      break;
-    } else {
-      result["topics"].forEach((valore) => {
-        var option = document.createElement("option");
-        option.value = valore;
-        option.text = valore;
-        select_topics.appendChild(option);
-      });
-    }
   }
-  $('#select_topics').data('select2').$container.find('.select2-search__field').attr('placeholder', 'Cerca argomento');
-  select_topics.disabled = false;
+
+  select_topics.prop('disabled', false).select2({               //re-enable select programs
+    placeholder: 'Cerca argomento',
+    maximumSelectionLength: 1
+  });
 }
 
+
 async function fetchAffiliations() {
-  const old_value = $("#select_affiliations").val()[0];
-  var select_affiliations = $('#select_affiliations');
-  if ($("#select_pol").val().length > 1) {
-    select_affiliations.prop('disabled', true);
-    $("#select_affiliations").empty();
-  } else if (!$("#political_group").is(":checked")) {
+  const select_affiliations = $('#select_affiliations');
+  const old_value = select_affiliations.val()[0];               //remember eventual affiliation that was selected
+
+  if ($("#select_pol").val().length > 1) {                      //if more politicians are selected, emtpy and disable affiliations selection
     select_affiliations.prop('disabled', true).select2({
+      placeholder: '-'
+    });
+    select_affiliations.empty();
+  
+  } else if ($("#politician").is(":checked")) {                 //if radio politician is selected
+    select_affiliations.prop('disabled', true).select2({        //empty the select and block it while loading
       placeholder: 'Caricamento...'
     });
-    $('#select_affiliations').empty();
-    var i = 1;
-    var selected_politician = "";
+    select_affiliations.empty();
+
+    var selected_politician = "";                               //if a politician is selected, use it for filtering affiliations in the url
     if (
       $("#select_pol").val()[0] != undefined &&
       $("#select_pol").val()[0] != ""
     ) {
       selected_politician += `&politician_=${encodeURIComponent($("#select_pol").val()[0])}`;
     }
-    while (true) {
+
+    var i = 1;
+    while (true) {                                              //retrieve affiliations
       var url = "/v1/affiliations" + `?page=${i}` + selected_politician;
-      i++;
-      const result = await fetchData(url);
-      if (result.affiliations.length === 0) break;
-      result.affiliations.forEach((valore) => {
+      const data = await fetchData(url);
+      if (data === null) {
+        select_affiliations.prop('disabled', false).select2({
+          placeholder: 'Cerca partito'
+        });
+        select_affiliations.empty();
+        return;
+      }
+      data["affiliations"].forEach((valore) => {
         const option = new Option(valore, valore, false, false);
         select_affiliations.append(option);
       });
+      if (data["affiliations"].length < data["page_size"]) break;
+      i++;
     }
-    select_affiliations.prop('disabled', false).select2({
-      placeholder: 'Cerca partito'
+
+    select_affiliations.prop('disabled', false).select2({       //re-enable select affiliations
+      placeholder: 'Cerca partito',
+      maximumSelectionLength: 1
     });
-    if (old_value != undefined){
-      select_affiliations.onchange = null;
-      select_affiliations.value = old_value;
-      $('#select_affiliations').val(old_value).trigger('change');
-      select_affiliations.onchange = function() {
-          updateCharts(tab, still_running);
-          updatePoliticians();
-      };
+
+    if (old_value != undefined){                                //if there was an affiliation selected
+      select_affiliations.val(old_value).trigger('change');     //re-save it in the select
     }
   }
 }
 
+
 async function updatePoliticians() {
+  const select_pol = $("#select_pol");
   const selectedOption = $('input[name="choose_pol"]:checked').val();
   var rad = {};
-  rad["value"] = selectedOption;
-  const old_value = $("#select_pol").val()[0];
-  handleOptionChange(rad).then(() => {
-    if (old_value != undefined){
-      const select_pol = document.getElementById('select_pol');
-      select_pol.onchange = null;
-      select_pol.value = old_value;
-      $('#select_pol').val(old_value).trigger('change');
-      select_pol.onchange = function() {
-          updateCharts(tab, still_running);
-          fetchAffiliations();
-      };
+  rad["value"] = selectedOption;                                //need a rad variable just to pass it into the handleOptionChange() function
+  const old_value = select_pol.val()[0];
+  handleOptionChange(rad).then(() => {                          //call handleOptionChange() function to update politicians
+    if (old_value != undefined){                                //if there was an politician selected
+      select_pol.val(old_value).trigger('change');              //re-save it in the select
     }
   });
 }

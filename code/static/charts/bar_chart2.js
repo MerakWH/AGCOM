@@ -1,4 +1,5 @@
 async function barChart2() {
+  select_pol_length = 4;
   controller.abort();
   while(functionIsRunning){
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -8,6 +9,7 @@ async function barChart2() {
   }
   functionIsRunning = true;
   controller = new AbortController();
+  selectPolLength4();
   var bC = document.getElementById("barChart2");
   bC.style.display = "block";
   document.getElementById("barChart3").style.display = "none";

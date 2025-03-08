@@ -1,4 +1,6 @@
 async function radarChart3() {
+  select_pol_length = 10;
+  selectPolLength10();
   var rC = document.getElementById("radarChart3");
   rC.style.display = "block";
   document.getElementById("barChart2").style.display = "none";

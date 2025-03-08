@@ -1,4 +1,6 @@
 async function table(tab, still_running) {
+  select_pol_length = 1;
+  selectPolLength1();
 
   document.querySelector(".card-title").innerHTML =
   "Analisi Politico <span>/Tabella -- Coming soon</span>";

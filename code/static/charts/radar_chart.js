@@ -1,4 +1,5 @@
 async function radarChart() {
+  select_pol_length = 4;
   controller.abort();
   while(functionIsRunning){
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -8,6 +9,7 @@ async function radarChart() {
   }
   functionIsRunning = true;
   controller = new AbortController();
+  selectPolLength4();
   var rC = document.getElementById("radarChart");
   document.getElementById("barChart2").style.display = "none";
   document.getElementById("barChart3").style.display = "none";

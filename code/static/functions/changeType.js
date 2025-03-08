@@ -1,5 +1,4 @@
-// change checkbox type
-
+// change checkbox type (change global variable cb)
 async function changeType() {
   const news = document.getElementById("news");
   const speech = document.getElementById("speech");

@@ -1,4 +1,6 @@
 async function barPieChart() {
+  select_pol_length = 4;
+  selectPolLength4();
   function dataFormatter(obj, list, m_y, x_y) {
     var temp;
     for (var year = m_y; year <= x_y; year++) {

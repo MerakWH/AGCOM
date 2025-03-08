@@ -1,4 +1,6 @@
 async function lineChart2() {
+  select_pol_length = 4;
+  selectPolLength4();
 
   document.querySelector(".card-title").innerHTML =
   "Confronto Politici <span>/Grafico a Linee 2 -- Coming soon</span>";
