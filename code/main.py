@@ -86,35 +86,48 @@ The license under which the data is released by AGCOM is CC-BY-SA-NC
 
 app = FastAPI(
     title="AGCOM - dati elementari di monitoraggio televisivo",
+    description=description,
     version="0.0.1",
+    contact={
+         "name": "Merak",
+         "email": "merakwinston.hall@gmail.com",
+     },
+     license_info={
+         "name": "data under cc-by-nc-sa",
+         "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+     }
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="code/static"), name="static")
 
 @app.get("/")
 async def read_index():
-    return FileResponse('templates/home.html')
+
+     """
+     Serve the home.html file.
+     """
+     return FileResponse('code/templates/home.html')
 
 @app.get("/index")
 async def read_charts():
     """
     Serve the index.html file.
     """
-    return FileResponse('templates/index.html')
+    return FileResponse('code/templates/index.html')
 
 @app.get("/faq")
 async def read_faq():
     """
     Serve the pages-faq.html file.
     """
-    return FileResponse('templates/pages-faq.html')
+    return FileResponse('code/templates/pages-faq.html')
 
 @app.get("/contact")
 async def contact():
     """
     Serve the pages-contact.html file.
     """
-    return FileResponse('templates/pages-contact.html')
+    return FileResponse('code/templates/pages-contact.html')
 
 # -------------------------------------------------------
 
