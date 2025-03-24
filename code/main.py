@@ -131,6 +131,21 @@ async def contact():
 
 # -------------------------------------------------------
 
+@app.get("/v1/data-for-select")
+async def get_data_for_select():
+    """
+    Return all data used to initialize selects in homepage
+    """
+
+    return {"start_date": start_date,
+            "end_date": end_date,
+            "politicians_list": politicians_list,
+            "political_groups_list": political_groups_list,
+            "channels": channels,
+            "programs": programs,
+            "affiliations": affiliations,
+            "topics": topics }
+
 @app.get("/v1/politicians")
 async def get_politicians(
     start_date_: str = Query(default=start_date),

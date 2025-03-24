@@ -415,33 +415,12 @@
       });
 
       //initializing selects
-      fetchChannels();
-      fetchPrograms();
-      fetchTopics();
-      fetchAffiliations();
-
-      //initializing date selector
-      fetchData("/v1/dates").then(result => {
-        start_date.value = result["first_date"];
-        start_date.min = result["first_date"];
-        start_date.max = result["end_date"];
-        end_date.value = result["end_date"];
-        end_date.min = result["first_date"];
-        end_date.max = result["end_date"];
-      });
+      initializeSelects();
 
     });
 
     //creating Array with all possible topics
     const TOPICS = [];
-    (async () => {
-      const fetchedTopics = await fetchTopicsArray();
-      TOPICS.push(...fetchedTopics); 
-    })();
-
-    //saving date selectors in a variable for future initialization
-    const start_date = document.getElementById("start_date");
-    const end_date = document.getElementById("end_date");
 
     var cb = "both";                  //variable to know if news-speech are selected
     var select_pol_length = 10;       //variable to know max number of politicians you can select 

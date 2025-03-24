@@ -19,17 +19,12 @@ async function handleOptionChange(radio) {                      // initializing 
         select_pol.append(option);
       });
     }else{                                                      //if no affiliation is selected, search every politician
-      var i = 1;
-      while (true) {
-        var url = "/v1/politicians" + `?page=${i}`;
-        const data = await fetchData(url);
-        data["politicians"].forEach((valore) => {
-          const option = new Option(valore, valore, false, false);
-          select_pol.append(option);
-        });
-        if (data["politicians"].length < data["page_size"]) break;
-        i++;
-      }
+      var url = "/v1/data-for-select";
+      const data = await fetchData(url);
+      data["politicians_list"].forEach((valore) => {
+        const option = new Option(valore, valore, false, false);
+        select_pol.append(option);
+      });
       fetchAffiliations();
     }
 
@@ -39,17 +34,12 @@ async function handleOptionChange(radio) {                      // initializing 
     });
     select_affiliations.empty();
 
-    var i = 1;
-    while (true) {
-      var url = "/v1/political-groups" + `?page=${i}`;
-      const data = await fetchData(url);
-      data["political_groups"].forEach((valore) => {
-        const option = new Option(valore, valore, false, false);
-        select_pol.append(option);
-      });
-      if (data["political_groups"].length < data["page_size"]) break;
-      i++;
-    }
+    var url = "/v1/data-for-select";
+    const data = await fetchData(url);
+    data["political_groups_list"].forEach((valore) => {
+      const option = new Option(valore, valore, false, false);
+      select_pol.append(option);
+    });
   }
 
   select_pol.prop('disabled', false).select2({                  //re-enable select politician/political group
@@ -73,18 +63,24 @@ async function fetchChannels() {
     $("#select_programs").val()[0] != ""
   ) {
     selected_program = `&program_=${encodeURIComponent($("#select_programs").val()[0])}`
-  }
-
-  var i = 1;
-  while (true) {                                                //retrieve channels
-    var url = "/v1/channels" + `?page=${i}` + selected_program;
+    var i = 1;
+    while (true) {                                                //retrieve channels
+      var url = "/v1/channels" + `?page=${i}` + selected_program;
+      const data = await fetchData(url);
+      data["channels"].forEach((valore) => {
+        const option = new Option(valore, valore, false, false);
+        select_channels.append(option);
+      });
+      if (data["channels"].length < data["page_size"]) break;
+      i++;
+    }
+  } else {
+    var url = "/v1/data-for-select";
     const data = await fetchData(url);
     data["channels"].forEach((valore) => {
       const option = new Option(valore, valore, false, false);
       select_channels.append(option);
     });
-    if (data["channels"].length < data["page_size"]) break;
-    i++;
   }
 
   select_channels.prop('disabled', false).select2({             //re-enable select channels
@@ -112,18 +108,25 @@ async function fetchPrograms() {
     $("#select_channels").val()[0] != ""
   ) {
     selected_channel += `&channel_=${encodeURIComponent($("#select_channels").val()[0])}`;
-  }
 
-  var i = 1;
-  while (true) {                                                //retrieve programs
-    var url = "/v1/programs" + `?page=${i}` + selected_channel;
+    var i = 1;
+    while (true) {                                                //retrieve programs
+      var url = "/v1/programs" + `?page=${i}` + selected_channel;
+      const data = await fetchData(url);
+      data["programs"].forEach((valore) => {
+        const option = new Option(valore, valore, false, false);
+        select_programs.append(option);
+      });
+      if (data["programs"].length < data["page_size"]) break;
+      i++;
+    }
+  } else {
+    var url = "/v1/data-for-select";
     const data = await fetchData(url);
     data["programs"].forEach((valore) => {
       const option = new Option(valore, valore, false, false);
       select_programs.append(option);
     });
-    if (data["programs"].length < data["page_size"]) break;
-    i++;
   }
 
   select_programs.prop('disabled', false).select2({             //re-enable select programs
@@ -185,11 +188,27 @@ async function fetchAffiliations() {
       $("#select_pol").val()[0] != ""
     ) {
       selected_politician += `&politician_=${encodeURIComponent($("#select_pol").val()[0])}`;
-    }
 
-    var i = 1;
-    while (true) {                                              //retrieve affiliations
-      var url = "/v1/affiliations" + `?page=${i}` + selected_politician;
+      var i = 1;
+      while (true) {                                              //retrieve affiliations
+        var url = "/v1/affiliations" + `?page=${i}` + selected_politician;
+        const data = await fetchData(url);
+        if (data === null) {
+          select_affiliations.prop('disabled', false).select2({
+            placeholder: 'Cerca partito'
+          });
+          select_affiliations.empty();
+          return;
+        }
+        data["affiliations"].forEach((valore) => {
+          const option = new Option(valore, valore, false, false);
+          select_affiliations.append(option);
+        });
+        if (data["affiliations"].length < data["page_size"]) break;
+        i++;
+      }
+    } else {
+      var url = "/v1/data-for-select";
       const data = await fetchData(url);
       if (data === null) {
         select_affiliations.prop('disabled', false).select2({
@@ -202,8 +221,6 @@ async function fetchAffiliations() {
         const option = new Option(valore, valore, false, false);
         select_affiliations.append(option);
       });
-      if (data["affiliations"].length < data["page_size"]) break;
-      i++;
     }
 
     select_affiliations.prop('disabled', false).select2({       //re-enable select affiliations
@@ -229,4 +246,63 @@ async function updatePoliticians() {
       select_pol.val(old_value).trigger('change');              //re-save it in the select
     }
   });
+}
+
+
+async function initializeSelects(){                             //initialize selects
+  const data = await fetchData('/v1/data-for-select');
+
+  const select_channels = $('#select_channels');
+  const select_programs = $('#select_programs');
+  const select_topics = $('#select_topics');
+
+  select_channels.prop('disabled', true).select2({
+    placeholder: 'Caricamento...'
+  });
+  select_programs.prop('disabled', true).select2({
+    placeholder: 'Caricamento...'
+  });
+  select_topics.prop('disabled', true).select2({
+    placeholder: 'Caricamento...'
+  });
+
+  data["channels"].forEach((valore) => {                        //initialize channels select
+    const option = new Option(valore, valore, false, false);
+    select_channels.append(option);
+  });
+  select_channels.prop('disabled', false).select2({
+    placeholder: 'Cerca canale',
+    maximumSelectionLength: 1
+  });
+
+  data["programs"].forEach((valore) => {                        //initialize programs select
+    const option = new Option(valore, valore, false, false);
+    select_programs.append(option);
+  });
+  select_programs.prop('disabled', false).select2({
+    placeholder: 'Cerca programma',
+    maximumSelectionLength: 1
+  });
+
+  data["topics"].forEach((valore) => {                        //initialize topics select
+    const option = new Option(valore, valore, false, false);
+    select_topics.append(option);
+  });
+  select_topics.prop('disabled', false).select2({
+    placeholder: 'Cerca argomento',
+    maximumSelectionLength: 1
+  });
+
+  //initialize dates
+  const start_date = document.getElementById("start_date");
+  const end_date = document.getElementById("end_date");
+
+  start_date.value = data["start_date"].replace(/\//g, "-");
+  start_date.min = data["start_date"].replace(/\//g, "-");
+  start_date.max = data["end_date"].replace(/\//g, "-");
+  end_date.value = data["end_date"].replace(/\//g, "-");
+  end_date.min = data["start_date"].replace(/\//g, "-");
+  end_date.max = data["end_date"].replace(/\//g, "-");
+
+  TOPICS.push(...data["topics"]);
 }
