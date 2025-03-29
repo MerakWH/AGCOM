@@ -131,6 +131,11 @@ async def contact():
 
 # -------------------------------------------------------
 
+@app.head("/ping")
+async def ping():
+    return {}
+
+
 @app.get("/v1/data-for-select")
 async def get_data_for_select():
     """
