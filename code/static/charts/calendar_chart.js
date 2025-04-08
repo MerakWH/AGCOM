@@ -1,21 +1,15 @@
 async function calendarChart() {
   select_pol_length = 1;
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
   selectPolLength1();
-
-  document.querySelector(".card-title").innerHTML =
-    "Analisi Politico <span>/Grafico a Calendario -- Coming soon</span>";
-  document.getElementById("barChart2").style.display = "none";
-  document.getElementById("barChart3").style.display = "none";
-  document.getElementById("stackedBarChart").style.display = "none";
-  document.getElementById("lineChart").style.display = "none";
-  document.getElementById("lineChart2").style.display = "none";
-  document.getElementById("radarChart").style.display = "none";
-  document.getElementById("radarChart2").style.display = "none";
-  document.getElementById("radarChart3").style.display = "none";
-  document.getElementById("barPieChart").style.display = "none";
-  document.getElementById("tableDiv").style.display = "none";
-  document.getElementById("loadingScreen").style.display = "none";
-  return;
 
   var cC = document.getElementById("calendarChart");
   cC.style.display = "block";
@@ -41,6 +35,7 @@ async function calendarChart() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "Analisi Politico <span>/Grafico a Calendario<br><br> You need to select at least a politician/political group to use this chart</span>";
+    functionIsRunning = false;
     return 0;
   }
   calendarChartInstance = echarts.init(cC);
@@ -52,6 +47,7 @@ async function calendarChart() {
   } else if (pg.checked == true) {
     var t = "/v1/interventions-political-group-per-day/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
   var url_c = "";
@@ -84,52 +80,68 @@ async function calendarChart() {
       $("#select_affiliations").val()[0]
     )}`;
   }
-  const baseUrl =
-    t +
-    $("#select_pol").val()[0] +
-    "?start_date_=" +
-    start_date.value.replace(/-/g, "%2F") +
-    "&end_date_=" +
-    end_date.value.replace(/-/g, "%2F") +
+
+  var begin_year = parseInt(start_date.value.split("-")[0]);
+  var final_year = parseInt(end_date.value.split("-")[0]);
+  var i_data = {
+    politician: $("#select_pol").val()[0],
+    interventions: [],
+    max_value: 0,
+  };
+  var total_minutes = 0;
+  var i = 0;
+  
+  const finalUrl =
     "&kind_=" +
     cb +
     url_a +
     url_c +
     url_p +
     url_t;
-  var i = 1;
-  var data = {
-    politician: $("#select_pol").val()[0],
-    interventions: [],
-    max_value: 0,
-    "begin year": 0,
-    "final year": 0,
-  };
-  var total_minutes = 0;
-  while (true) {
-    var url = `${baseUrl}&page=${i}`;
-    i++;
-    const i_data = await fetchData(url);
-    if (i_data.interventions.length == 0) {
-      break;
-    } else {
-      data.interventions.push(i_data["interventions"][0]);
-      data.max_value = i_data.max_value;
-      data["begin year"] = i_data["begin year"];
-      data["final year"] = i_data["final year"];
-      total_minutes += i_data["max_value"];
+
+  while((begin_year + i) != final_year + 1){
+    var j = 1;
+    const baseUrl = 
+    t +
+    $("#select_pol").val()[0] +
+    "?year=" +
+    (begin_year + i) +
+    finalUrl;
+
+    while (true) {
+      if (controller.signal.aborted) {
+        functionIsRunning = false;
+        return;
+      }
+      var url = `${baseUrl}&page=${j}`;
+      const data = await fetchData(url);
+      if (!data || data.interventions.length == 0) {
+        break;
+      }
+      var temp = [];
+      data.interventions.forEach((v) => {
+        temp.push([v[0], v[1]["interventions"]]);
+      });
+      i_data.interventions.push(temp);
+      i_data.max_value = data.max_value > i_data.max_value ? data.max_value : i_data.max_value;
+      total_minutes += data.max_value;
+
+      if (data.interventions.length < data.page_size){
+        break;
+      }
+      j++;
     }
+    i++;
   }
   if (total_minutes == 0) {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Calendar Chart</span> <br><br> NO DATA FOUND";
     calendarChartInstance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
-  var interv = data["interventions"];
-  var max_value = data["max_value"];
-  var begin_year = data["begin year"];
-  var final_year = data["final year"];
+  var interv = i_data["interventions"];
+  var max_value = i_data["max_value"];
   var calendar = [];
   var series = [];
   interv.forEach(function (x, index) {
@@ -191,4 +203,5 @@ async function calendarChart() {
   };
   calendarChartInstance.setOption(option);
   calendarChartInstance.hideLoading();
+  functionIsRunning = false;
 }

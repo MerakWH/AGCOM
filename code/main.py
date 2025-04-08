@@ -935,7 +935,7 @@ async def get_interventions_politician_per_day(
     program_: str = Query(default = "all", description="Program"),
     topic_: str = Query(default = "all", description="Topic"),
     page: int = Query(default=1, description="Page number"),
-    page_size: int = Query(default=366, description="Page size")
+    page_size: int = Query(default=367, description="Page size")
 ):
     """
     Return how much a politician has intervened in tv per day for a specific year
@@ -1007,8 +1007,12 @@ async def get_interventions_politician_per_day(
 
     paginated_list = list(results.items())[(page - 1) * page_size : page * page_size]
 
+    max_value = 0
+    if paginated_list:
+        max_value = max(paginated_list, key=lambda x: x[1]["interventions"])[1]["interventions"]
+
     return {"politician": name, "interventions": paginated_list, 
-            "max_value": max(paginated_list, key=lambda x: x[1]["interventions"])[1]["interventions"]}
+            "max_value": max_value, "page_size": page_size}
 
 
 @app.get("/v1/interventions-political-group-per-day/{name}")
@@ -1020,7 +1024,7 @@ async def get_interventions_political_group_per_day(
     program_: str = Query(default = "all", description="Program"),
     topic_: str = Query(default = "all", description="Topic"),
     page: int = Query(default=1, description="Page number"),
-    page_size: int = Query(default=366, description="Page size")
+    page_size: int = Query(default=367, description="Page size")
 ):
     """
     Return how much a political group has intervened in tv per day for a specific year
@@ -1087,8 +1091,12 @@ async def get_interventions_political_group_per_day(
 
     paginated_list = list(results.items())[(page - 1) * page_size : page * page_size]
 
+    max_value = 0
+    if paginated_list:
+        max_value = max(paginated_list, key=lambda x: x[1]["interventions"])[1]["interventions"]
+
     return { "political group": name, "interventions": paginated_list,
-             "max_value": max(paginated_list, key=lambda x: x[1]["interventions"])[1]["interventions"]}
+             "max_value": max_value, "page_size": page_size}
 
 # -------------------------------------------------------
 

@@ -1,21 +1,15 @@
 async function lineChart2() {
   select_pol_length = 4;
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
   selectPolLength4();
-
-  document.querySelector(".card-title").innerHTML =
-  "Confronto Politici <span>/Grafico a Linee 2 -- Coming soon</span>";
-  document.getElementById("barChart2").style.display = "none";
-  document.getElementById("barChart3").style.display = "none";
-  document.getElementById("stackedBarChart").style.display = "none";
-  document.getElementById("calendarChart").style.display = "none";
-  document.getElementById("lineChart").style.display = "none";
-  document.getElementById("radarChart").style.display = "none";
-  document.getElementById("radarChart2").style.display = "none";
-  document.getElementById("radarChart3").style.display = "none";
-  document.getElementById("barPieChart").style.display = "none";
-  document.getElementById("tableDiv").style.display = "none";
-  document.getElementById("loadingScreen").style.display = "none";
-  return;
 
   var lC = document.getElementById("lineChart2");
   lC.style.display = "block";
@@ -41,6 +35,7 @@ async function lineChart2() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "Confronto Politici <span>/Grafico a Linee 2<br><br> You need to select at least a politician/political group to use this chart</span>";
+    functionIsRunning = false;
     return 0;
   }
   lineChart2Instance = echarts.init(lC);
@@ -52,10 +47,9 @@ async function lineChart2() {
   } else if (pg.checked == true) {
     var t = "/v1/interventions-political-group-per-day/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
-  var series = [];
-  var politicians = [];
   var url_c = "";
   var url_p = "";
   var url_t = "";
@@ -87,33 +81,60 @@ async function lineChart2() {
     )}`;
   }
   const selectedValues = $("#select_pol").val();
+  var begin_year = parseInt(start_date.value.split("-")[0]);
+  var final_year = parseInt(end_date.value.split("-")[0]);
+  var series = [];
+  var politicians = [];
   var total_minutes = 0;
+
+  const finalUrl =
+  "&kind_=" +
+  cb +
+  url_a +
+  url_c +
+  url_p +
+  url_t;
+
   for (const value of selectedValues) {
-    const baseUrl =
+    const beginUrl =
       t +
-      value +
-      "?start_date_=" +
-      start_date.value.replace(/-/g, "%2F") +
-      "&end_date_=" +
-      end_date.value.replace(/-/g, "%2F") +
-      "&kind_=" +
-      cb +
-      url_a +
-      url_c +
-      url_p +
-      url_t;
+      value
     var values = [];
-    var i = 1;
-    while (true) {
-      var url = `${baseUrl}&page=${i}`;
-      i++;
-      const data = await fetchData(url);
-      if (data.interventions.length == 0) {
-        break;
-      } else {
-        values.push(data["interventions"][0]);
-        total_minutes += data["max_value"];
+    var i = 0;
+
+    while((begin_year + i) != final_year + 1){
+      var j = 1;
+      const baseUrl = 
+      beginUrl +
+      "?year=" +
+      (begin_year + i) +
+      finalUrl;
+      while (true) {
+        if (controller.signal.aborted) {
+          functionIsRunning = false;
+          return;
+        }
+        var url = `${baseUrl}&page=${j}`;
+        const data = await fetchData(url);
+        if (!data || data.interventions.length == 0) {
+          break;
+        }
+        var temp = [];
+        data.interventions.forEach((v) => {
+          temp.push([v[0], v[1]["interventions"]]);
+        });
+        var temp = [];
+        data.interventions.forEach((v) => {
+          temp.push([v[0], v[1]["interventions"]]);
+        });
+        values.push(temp);
+        total_minutes += data.max_value;
+        if (data.interventions.length < data.page_size){
+          break;
+        }
+        j++;
       }
+      i++;
     }
     series.push(values);
     politicians.push(value);
@@ -122,6 +143,7 @@ async function lineChart2() {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Bar + Pie Chart</span> <br><br> NO DATA FOUND";
     lineChart2Instance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
   series.forEach((pol, index) => {
@@ -217,4 +239,5 @@ async function lineChart2() {
   };
   lineChart2Instance.setOption(option);
   lineChart2Instance.hideLoading();
+  functionIsRunning = false;
 }

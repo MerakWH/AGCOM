@@ -51,7 +51,10 @@ async function handleOptionChange(radio) {                      // initializing 
 
 async function fetchChannels() {
   const select_channels = $('#select_channels');
-  const old_value = select_channels.val()[0];                   //remember eventual channel that was selected
+  var old_value = undefined;
+  if(select_channels.val().length > 0){
+    old_value = select_channels.val()[0];                   //remember eventual channel that was selected
+  }
   select_channels.prop('disabled', true).select2({              //empty the select and block it while loading
     placeholder: 'Caricamento...'
   });
@@ -96,7 +99,10 @@ async function fetchChannels() {
 
 async function fetchPrograms() {
   const select_programs = $('#select_programs');
-  const old_value = select_programs.val()[0];                   //remember eventual program that was selected
+  var old_value = undefined;
+  if(select_programs.val().length > 0){
+    old_value = select_programs.val()[0];                   //remember eventual program that was selected
+  }
   select_programs.prop('disabled', true).select2({              //empty the select and block it while loading
     placeholder: 'Caricamento...'
   });
@@ -168,8 +174,10 @@ async function fetchTopics() {
 
 async function fetchAffiliations() {
   const select_affiliations = $('#select_affiliations');
-  const old_value = select_affiliations.val()[0];               //remember eventual affiliation that was selected
-
+  var old_value = undefined;
+  if(select_affiliations.val().length > 0){
+    old_value = select_affiliations.val()[0];               //remember eventual affiliation that was selected
+  }
   if ($("#select_pol").val().length > 1) {                      //if more politicians are selected, emtpy and disable affiliations selection
     select_affiliations.prop('disabled', true).select2({
       placeholder: '-'
@@ -240,7 +248,10 @@ async function updatePoliticians() {
   const selectedOption = $('input[name="choose_pol"]:checked').val();
   var rad = {};
   rad["value"] = selectedOption;                                //need a rad variable just to pass it into the handleOptionChange() function
-  const old_value = select_pol.val()[0];
+  var old_value = undefined;
+  if (select_pol.val().length > 0){
+    const old_value = select_pol.val()[0];
+  }
   handleOptionChange(rad).then(() => {                          //call handleOptionChange() function to update politicians
     if (old_value != undefined){                                //if there was an politician selected
       select_pol.val(old_value).trigger('change');              //re-save it in the select
