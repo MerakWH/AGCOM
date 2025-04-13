@@ -14,17 +14,21 @@ async function handleOptionChange(radio) {                      // initializing 
       var affiliation_url = `${encodeURIComponent(select_affiliations.val()[0])}`;
       var url = "/v1/politicians-affiliation/" + affiliation_url;
       const data = await fetchData(url);
-      data["politicians"].forEach((valore) => {
-        const option = new Option(valore, valore, false, false);
-        select_pol.append(option);
-      });
+      if (data) {
+        data["politicians"].forEach((valore) => {
+          const option = new Option(valore, valore, false, false);
+          select_pol.append(option);
+        });
+      }
     }else{                                                      //if no affiliation is selected, search every politician
       var url = "/v1/data-for-select";
       const data = await fetchData(url);
-      data["politicians_list"].forEach((valore) => {
-        const option = new Option(valore, valore, false, false);
-        select_pol.append(option);
-      });
+      if (data) {
+        data["politicians_list"].forEach((valore) => {
+          const option = new Option(valore, valore, false, false);
+          select_pol.append(option);
+        });
+      }
       fetchAffiliations();
     }
 
@@ -36,10 +40,12 @@ async function handleOptionChange(radio) {                      // initializing 
 
     var url = "/v1/data-for-select";
     const data = await fetchData(url);
-    data["political_groups_list"].forEach((valore) => {
-      const option = new Option(valore, valore, false, false);
-      select_pol.append(option);
-    });
+    if (data) {
+      data["political_groups_list"].forEach((valore) => {
+        const option = new Option(valore, valore, false, false);
+        select_pol.append(option);
+      });
+    }
   }
 
   select_pol.prop('disabled', false).select2({                  //re-enable select politician/political group
@@ -70,6 +76,9 @@ async function fetchChannels() {
     while (true) {                                                //retrieve channels
       var url = "/v1/channels" + `?page=${i}` + selected_program;
       const data = await fetchData(url);
+      if (!data) {
+        break;
+      }
       data["channels"].forEach((valore) => {
         const option = new Option(valore, valore, false, false);
         select_channels.append(option);
@@ -80,10 +89,12 @@ async function fetchChannels() {
   } else {
     var url = "/v1/data-for-select";
     const data = await fetchData(url);
-    data["channels"].forEach((valore) => {
-      const option = new Option(valore, valore, false, false);
-      select_channels.append(option);
-    });
+    if (data) {
+      data["channels"].forEach((valore) => {
+        const option = new Option(valore, valore, false, false);
+        select_channels.append(option);
+      });
+    }
   }
 
   select_channels.prop('disabled', false).select2({             //re-enable select channels
@@ -119,6 +130,9 @@ async function fetchPrograms() {
     while (true) {                                                //retrieve programs
       var url = "/v1/programs" + `?page=${i}` + selected_channel;
       const data = await fetchData(url);
+      if (!data) {
+        break;
+      }
       data["programs"].forEach((valore) => {
         const option = new Option(valore, valore, false, false);
         select_programs.append(option);
@@ -129,10 +143,12 @@ async function fetchPrograms() {
   } else {
     var url = "/v1/data-for-select";
     const data = await fetchData(url);
-    data["programs"].forEach((valore) => {
-      const option = new Option(valore, valore, false, false);
-      select_programs.append(option);
-    });
+    if (data) {
+      data["programs"].forEach((valore) => {
+        const option = new Option(valore, valore, false, false);
+        select_programs.append(option);
+      });
+    }
   }
 
   select_programs.prop('disabled', false).select2({             //re-enable select programs
@@ -157,6 +173,9 @@ async function fetchTopics() {
   while (true) {                                                //retrieve data
     var url = "/v1/topics" + `?page=${i}`;
     const data = await fetchData(url);
+    if (!data) {
+      break;
+    }
     data["topics"].forEach((valore) => {                        //insert data in select
       const option = new Option(valore, valore, false, false);
       select_topics.append(option);
@@ -177,6 +196,12 @@ async function fetchAffiliations() {
   var old_value = undefined;
   if(select_affiliations.val().length > 0){
     old_value = select_affiliations.val()[0];               //remember eventual affiliation that was selected
+    if($("#select_pol").val().length > 1){
+      select_affiliations.prop('disabled', true).select2({
+        placeholder: '-'
+      });
+      return;
+    }
   }
   if ($("#select_pol").val().length > 1) {                      //if more politicians are selected, emtpy and disable affiliations selection
     select_affiliations.prop('disabled', true).select2({
@@ -250,7 +275,7 @@ async function updatePoliticians() {
   rad["value"] = selectedOption;                                //need a rad variable just to pass it into the handleOptionChange() function
   var old_value = undefined;
   if (select_pol.val().length > 0){
-    const old_value = select_pol.val()[0];
+    old_value = select_pol.val()[0];
   }
   handleOptionChange(rad).then(() => {                          //call handleOptionChange() function to update politicians
     if (old_value != undefined){                                //if there was an politician selected
@@ -262,6 +287,9 @@ async function updatePoliticians() {
 
 async function initializeSelects(){                             //initialize selects
   const data = await fetchData('/v1/data-for-select');
+  if (!data) {
+    return;
+  }
 
   const select_channels = $('#select_channels');
   const select_programs = $('#select_programs');

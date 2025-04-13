@@ -1,6 +1,17 @@
 async function barPieChart() {
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
+  if(select_pol_length != 4){
+    selectPolLength4();
+  }
   select_pol_length = 4;
-  selectPolLength4();
   function dataFormatter(obj, list, m_y, x_y) {
     var temp;
     for (var year = m_y; year <= x_y; year++) {
@@ -46,6 +57,7 @@ async function barPieChart() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "<u>Analisi Canale</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti </span><br><br>Tempo di partecipazione nei programmi <br><br><span>É necessario selezionare almeno un politico/partito e un canale per utilizzare questo grafico. </span>";
+    functionIsRunning = false;
     return 0;
   }
   barPieChartInstance = echarts.init(bpC);
@@ -57,6 +69,7 @@ async function barPieChart() {
   } else if (pg.checked == true) {
     var t = "/v1/minutes-channel-per-political-group/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
   const selectedValues = $("#select_pol").val();
@@ -105,6 +118,10 @@ async function barPieChart() {
   }
   var total_minutes = 0;
   for (const value of selectedValues) {
+    if (controller.signal.aborted) {
+      functionIsRunning = false;
+      return;
+    }
     const url =
       t +
       url_c +
@@ -120,6 +137,9 @@ async function barPieChart() {
       url_p +
       url_t;
     const data = await fetchData(url);
+    if (!data) {
+      break;
+    }
     total_minutes += data.total;
     if (p.checked == true) {
       data_legend.push(data["politician"]);
@@ -156,6 +176,7 @@ async function barPieChart() {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Bar + Pie Chart</span> <br><br> NO DATA FOUND";
     barPieChartInstance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
   for (var pol in politicians_list) {
@@ -340,12 +361,13 @@ async function barPieChart() {
             title: {},
             tooltip: {},
             legend: {
+              top: 100,
               left: "right",
               data: data_legend,
             },
             calculable: true,
             grid: {
-              top: 80,
+              top: 300,
               bottom: 100,
               tooltip: {
                 trigger: "axis",
@@ -380,7 +402,7 @@ async function barPieChart() {
               {
                 type: "text",
                 left: 50,
-                top: 20,
+                top: 210,
                 style: {
                   text: "Back",
                   fontSize: 18,
@@ -419,4 +441,5 @@ async function barPieChart() {
       }
     }
   });
+  functionIsRunning = false;
 }

@@ -203,5 +203,19 @@ async function calendarChart() {
   };
   calendarChartInstance.setOption(option);
   calendarChartInstance.hideLoading();
+
+  // calendarChartInstance.on("click", function (p) {
+  //   const timestamp = p.data[0];
+  //   const date = new Date(timestamp);
+
+  //   // Estrai anno, mese (aggiungi 1 perché parte da 0), e giorno
+  //   const year = date.getFullYear();
+  //   const month = String(date.getMonth() + 1).padStart(2, '0'); // aggiunge lo 0 davanti se serve
+  //   const day = String(date.getDate()).padStart(2, '0');
+
+  //   const formattedDate = `${year}/${month}/${day}`;
+
+  //   console.log(formattedDate);
+  // });
   functionIsRunning = false;
 }
