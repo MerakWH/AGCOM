@@ -20,14 +20,14 @@ async function radarChart3() {
     radarChart3Instance.dispose();
   }
   document.querySelector(".card-title").innerHTML =
-    "Analisi Programma <span>/Grafico Radar</span>";
+    "<u>Analisi Programma</u><span>&nbsp&nbsp&nbsp/seleziona fino a 10 politici-partiti </span><br><br>Maggiori esponenti nel programma <br><br><span>Questo grafico visualizza i dieci esponenti o gruppi politici che hanno avuto maggiore visibilità in un determinato programma televisivo, mostrando il tempo totale degli interventi e delle notizie trasmesse. <br>Ogni asse del grafico rappresenta un politico o partito, con il punto sull’asse che indica il valore corrispondente: quanto più il punto è vicino al centro del poligono, tanto più basso è il tempo degli interventi. <br>Questo grafico consente di analizzare il tempo dedicato ai politici o partiti sul programma, permettendo di valutare l'equità e la neutralità nella copertura mediatica. <br><br>È anche possibile selezionare fino a dieci politici o partiti specifici per confrontare la loro partecipazione nel programma. </span>";
   if (
     $("#select_programs").val()[0] == undefined ||
     $("#select_programs").val()[0] == "" ||
     (p.checked == false && pg.checked == false)
   ) {
     document.querySelector(".card-title").innerHTML =
-      "Analisi Programma <span>/Grafico Radar<br><br> You need to select at least a program and choose between politicians and political groups to use this chart</span>";
+      "<u>Analisi Programma</u><span>&nbsp&nbsp&nbsp/seleziona fino a 10 politici-partiti </span><br><br>Maggiori esponenti nel programma <br><br><span>É necessario selezionare almeno un programma e scegliere tra Politici e Partiti per utilizzare questo grafico. </span>";
     return 0;
   }
   radarChart3Instance = echarts.init(rC);
@@ -130,8 +130,6 @@ async function radarChart3() {
   option = {
     title: {
       text: `${selected_program}`,
-      subtext:
-        "compare the 10 politicians/political groups that intervened the most in a program, \n if you want you can select the politicians/ political groups to compare!",
       left: "center",
     },
     tooltip: {

@@ -31,6 +31,7 @@ async function updateCharts(tab, still_running) {
 //function to limit politicians selection to 1
 function selectPolLength1() {
   const select_pol =  $('#select_pol');
+  select_pol.select2('destroy');
   select_pol.select2({
     maximumSelectionLength: 1,
     placeholder: "Cerca politico/partito",
@@ -52,6 +53,7 @@ function selectPolLength1() {
 //function to limit politicians selection to 4
 async function selectPolLength4() {
   const select_pol =  $('#select_pol');
+  select_pol.select2('destroy');
   select_pol.select2({
     maximumSelectionLength: 4,
     placeholder: "Cerca politico/partito",
@@ -76,6 +78,7 @@ async function selectPolLength4() {
 
 //function to limit politicians selection to 10
 async function selectPolLength10() {
+  $("#select_pol").select2('destroy');
   $("#select_pol").select2({
     maximumSelectionLength: 10,
     placeholder: "Cerca politico/partito",

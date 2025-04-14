@@ -27,17 +27,17 @@ async function calendarChart() {
   if (calendarChartInstance !== null) {
     calendarChartInstance.dispose();
   }
-  document.querySelector(".card-title").innerHTML =
-    "Analisi Politico <span>/Grafico a Calendario</span>";
   if (
     $("#select_pol").val()[0] == undefined ||
     $("#select_pol").val()[0] == ""
   ) {
     document.querySelector(".card-title").innerHTML =
-      "Analisi Politico <span>/Grafico a Calendario<br><br> You need to select at least a politician/political group to use this chart</span>";
+    "<u>Analisi Politico</u> <br><br>Interventi giornalieri <br><br><span>É necessario selezionare un politico/partito per utilizzare questo grafico. </span>";
     functionIsRunning = false;
     return 0;
   }
+  document.querySelector(".card-title").innerHTML =
+    "<u>Analisi Politico</u> <br><br>Interventi giornalieri <br><br><span>Questo grafico mostra un calendario in cui ogni giorno è rappresentato dal numero di interventi televisivi effettuati da un esponente o gruppo politico. <br>Il grafico consente di identificare pattern e relazioni nei dati, confrontando i periodi in cui un politico o partito ha effettuato più o meno interventi o notizie. <br><br>Una barra di filtro situata in cima al grafico permette di visualizzare solo i giorni con un numero specifico di interventi. <br>Cliccando su uno dei giorni nel calendario, appare una tabella che mostra gli interventi svolti più nello specifico.</span>"
   calendarChartInstance = echarts.init(cC);
   calendarChartInstance.showLoading();
   const p = document.getElementById("politician");

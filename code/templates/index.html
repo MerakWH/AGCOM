@@ -259,7 +259,7 @@
 
         <!-- Selection Page -->
         <div class="col-lg-4">
-          <div class="card" style="height: 750px;">
+          <div class="card" style="height: 800px;">
             <div class="card-body pb-0">
               <h5 class="card-title">SELEZIONE</span></h5>
               <div class="formPolDiv" style="padding-top: 10px;">
@@ -308,6 +308,7 @@
                   <input type="checkbox" id="speech" value="speech" name="choose_type" checked onclick="changeType()" onchange="updateCharts(tab, still_running)">
                   <label for="speech">Interventi</label>
                 </form>
+                <span><br><i>- “Notizia”: una notizia riportata da terze parti riguardante un singolo esponente o un partito/raggruppamento/istituzione. <br>- “Parola”: un intervento dove un singolo esponente politico/istituzionale parla in prima persona.</i></span>
               </div>
             </div>
           </div>
@@ -429,10 +430,8 @@
 
     paginationLinks.forEach(link => {
       link.addEventListener('click', function(e) {
-        e.preventDefault(); // Previene il salto della pagina
-        // Rimuove 'active' da tutti
+        e.preventDefault();
         paginationLinks.forEach(l => l.classList.remove('active'));
-        // Aggiunge 'active' a quello cliccato
         this.classList.add('active');
       });
     });

@@ -27,17 +27,18 @@ async function lineChart2() {
   if (lineChart2Instance !== null) {
     lineChart2Instance.dispose();
   }
-  document.querySelector(".card-title").innerHTML =
-    "Confronto Politici <span>/Grafico a Linee 2</span>";
   if (
     $("#select_pol").val()[0] == undefined ||
     $("#select_pol").val()[0] == ""
   ) {
     document.querySelector(".card-title").innerHTML =
-      "Confronto Politici <span>/Grafico a Linee 2<br><br> You need to select at least a politician/political group to use this chart</span>";
+      "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br>Interventi giornalieri <br><br><span>É necessario selezionare almeno un politico/partito per utilizzare questo grafico. </span>";
     functionIsRunning = false;
     return 0;
   }
+  document.querySelector(".card-title").innerHTML =
+    "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br>Interventi giornalieri <br><br><span>Questo grafico rappresenta il numero degli interventi di un esponente o gruppo politico in un determinato arco di tempo. <br>Le categorie corrispondono ai giorni all'interno dell'intervallo selezionato, mentre i valori indicano il numero totale di interventi e notizie trasmesse per ciascun giorno. <br>Il grafico consente di analizzare l'andamento della presenza televisiva di un politico o partito, individuando eventuali picchi o cali di interesse. <br><br>Una barra inferiore permette di ingrandire e visualizzare una frazione dell’intervallo di tempo totale, mentre la legenda in alto consente di nascondere o mostrare i vari insiemi di dati.</span>";
+
   lineChart2Instance = echarts.init(lC);
   lineChart2Instance.showLoading();
   const p = document.getElementById("politician");
@@ -159,11 +160,6 @@ async function lineChart2() {
     },
     yAxis: {
       type: "value",
-    },
-    title: {
-      subtext:
-        "check the interventions made per day and compare up to 4 politician/political groups",
-      left: "center",
     },
     grid: {
       top: 150,

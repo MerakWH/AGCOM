@@ -27,13 +27,13 @@ async function radarChart() {
     radarChartInstance.dispose();
   }
   document.querySelector(".card-title").innerHTML =
-    "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <span> </span>";
+    '<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br>Tempo per argomento<br><br><span> Questo grafico visualizza la quantità totale di tempo che un esponente o gruppo politico dedica a diversi argomenti. <br>Ogni raggio del grafico rappresenta un argomento, per visualizzare nel dettaglio il tempo di trasmissione degli argomenti bisogna passare con il cursore sopra la "ragnatela" che descrive un esponente o gruppo politico. <br><br>Il grafico interattivo offre la possibilità di nascondere un intero set di dati cliccando sul nome corrispondente nella legenda.</span>';
   if (
     $("#select_pol").val()[0] == undefined ||
     $("#select_pol").val()[0] == ""
   ) {
     document.querySelector(".card-title").innerHTML =
-      "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br> <br><br><span>É necessario selezionare almeno un politico/partito per utilizzare questo grafico. </span>";
+      "<u>Confronto Politici</u><span>&nbsp&nbsp&nbsp/seleziona fino a 4 politici-partiti</span> <br><br> Tempo per argomento<br><br><span>É necessario selezionare almeno un politico/partito per utilizzare questo grafico. </span>";
     functionIsRunning = false;
     return 0;
   }
@@ -162,11 +162,6 @@ async function radarChart() {
     data.push({ name: p, value: minutes[index] });
   });
   option = {
-    title: {
-      subtext:
-        "show how many interventions a politician made about all topics and compare up to 4 politician/political groups",
-      left: "center",
-    },
     legend: {
       top: 50,
       data: politicians,
