@@ -42,6 +42,31 @@
       align-items: center;
       height: 100%;
     }
+
+    /* Pagination */
+    .center {
+      text-align: center;
+    }
+
+    .pagination {
+      display: none;
+      padding-top: 20px;
+    }
+
+    .pagination a {
+      color: black;
+      float: left;
+      padding: 8px 16px;
+      text-decoration: none;
+      transition: background-color .3s;
+    }
+
+    .pagination a.active {
+      background-color: #1E90FF;
+      color: white;
+    }
+
+    .pagination a:hover:not(.active) {background-color: #ddd;}
 </style>
   
 </head>
@@ -75,85 +100,31 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#bar-charts-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi-person"></i><span>Analisi Politico</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link collapsed " href="#" onclick="barChart3(); analisiPolitico();">
+          <i class="bi-person"></i>
+          <span>Analisi Politico</span>
         </a>
-        <ul id="bar-charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#" onclick="barChart3()">
-              <i class="bi-bar-chart-fill"></i><span>Grafico a Barre</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" onclick="calendarChart()">
-              <i class="bi-calendar4-week"></i><span>Grafico a Calendario</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" onclick="table(tab, still_running)">
-              <i class="bi-table"></i><span>Tabella</span>
-            </a>
-          </li>
-        </ul>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#line-charts-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi-people-fill"></i><span>Confronto Politici</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link collapsed " href="#" onclick="barChart2(); confrontoPolitici();">
+          <i class="bi-people-fill"></i>
+          <span>Confronto Politici</span>
         </a>
-        <ul id="line-charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#" onclick="barChart2()">
-              <i class="bi-bar-chart-fill"></i><span>Grafico a Barre</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" onclick="lineChart()">
-              <i class="bi-graph-up"></i><span>Grafico a Linee 1</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" onclick="lineChart2()">
-              <i class="bi-graph-up"></i><span>Grafico a Linee 2</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" onclick="radarChart()">
-              <i class="bi-hexagon"></i><span>Grafico Radar</span>
-            </a>
-          </li>
-          <li>
-        </ul>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#radar-charts-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi-tv"></i><span>Analisi Canale</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link collapsed " href="#" onclick="radarChart2(); analisiCanale();">
+          <i class="bi-tv"></i>
+          <span>Analisi Canale</span>
         </a>
-        <ul id="radar-charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#" onclick="barPieChart()">
-              <i class="bi-bar-chart-fill"></i><span>Grafico a Barre</span>
-            </a>
-          </li>
-            <a href="#" onclick="radarChart2()">
-              <i class="bi-hexagon"></i><span>Grafico Radar</span>
-            </a>
-          </li>
-        </ul>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#other-charts-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi-collection-play"></i><span>Analisi Programma</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link collapsed " href="#" onclick="radarChart3(); analisiProgramma();">
+          <i class="bi-collection-play"></i>
+          <span>Analisi Programma</span>
         </a>
-        <ul id="other-charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="#" onclick="radarChart3()">
-              <i class="bi-hexagon"></i><span>Grafico Radar</span>
-            </a>
-          </li>
-        </ul>
       </li>
 
       <li class="nav-item">
@@ -206,6 +177,39 @@
             <div class="col-12">
               <div class="card">
                 <div class="card-body">
+                  <div class="center">
+                    <div id="analisiPolitico" class="pagination">
+                    <a href="#">&laquo;</a>
+                    <a id='theActiveOne' href="#" onclick="barChart3()">1</a>
+                    <a href="#" onclick="calendarChart()">2</a>
+                    <a href="#">&raquo;</a>
+                    </div>
+                  </div>
+                  <div class="center">
+                    <div id="confrontoPolitici" class="pagination">
+                    <a href="#">&laquo;</a>
+                    <a id='theActiveTwo' href="#" onclick="barChart2()">1</a>
+                    <a href="#" onclick="lineChart()">2</a>
+                    <a href="#" onclick="lineChart2()">3</a>
+                    <a href="#" onclick="radarChart()">4</a>
+                    <a href="#">&raquo;</a>
+                    </div>
+                  </div>
+                  <div class="center">
+                    <div id="analisiCanale" class="pagination">
+                    <a href="#">&laquo;</a>
+                    <a id='theActiveThree' href="#" onclick="radarChart2()">1</a>
+                    <a href="#" onclick="barPieChart()">2</a>
+                    <a href="#">&raquo;</a>
+                    </div>
+                  </div>
+                  <div class="center">
+                    <div id="analisiProgramma" class="pagination">
+                    <a href="#">&laquo;</a>
+                    <a id='theActiveFour' href="#" onclick="radarChart3()">1</a>
+                    <a href="#">&raquo;</a>
+                    </div>
+                  </div>
                   <h5 class="card-title">Analisi dei dati di monitoraggio televisivo <span><br><br>Sulla piattaforma di AGCOM vengono semestralmente pubblicati, per essere riutilizzati, i dati elementari di 
                     monitoraggio televisivo, che descrivono gli interventi quotidiani dei vari movimenti e 
                     personaggi politici nella televisione italiana, specificando canale, programma e argomento trattato. <br><br>
@@ -421,6 +425,18 @@
 
     });
 
+    const paginationLinks = document.querySelectorAll('.pagination a:not(.prev):not(.next)');
+
+    paginationLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault(); // Previene il salto della pagina
+        // Rimuove 'active' da tutti
+        paginationLinks.forEach(l => l.classList.remove('active'));
+        // Aggiunge 'active' a quello cliccato
+        this.classList.add('active');
+      });
+    });
+
     //creating Array with all possible topics
     const TOPICS = [];
 
@@ -509,6 +525,7 @@
   <script src="/static/functions/limitEndDate.js"></script>
   <script src="/static/functions/selects.js"></script>
   <script src="/static/functions/updateCharts.js"></script>
+  <script src="/static/functions/changePagination.js"></script>
 
 
 </body>
