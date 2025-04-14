@@ -204,18 +204,61 @@ async function calendarChart() {
   calendarChartInstance.setOption(option);
   calendarChartInstance.hideLoading();
 
-  // calendarChartInstance.on("click", function (p) {
-  //   const timestamp = p.data[0];
-  //   const date = new Date(timestamp);
+  calendarChartInstance.on("click", function (variable) {
+    const timestamp = variable.data[0];
+    const date = new Date(timestamp);
 
-  //   // Estrai anno, mese (aggiungi 1 perché parte da 0), e giorno
-  //   const year = date.getFullYear();
-  //   const month = String(date.getMonth() + 1).padStart(2, '0'); // aggiunge lo 0 davanti se serve
-  //   const day = String(date.getDate()).padStart(2, '0');
+    // Estrai anno, mese (aggiungi 1 perché parte da 0), e giorno
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // aggiunge lo 0 davanti se serve
+    const day = String(date.getDate()).padStart(2, '0');
 
-  //   const formattedDate = `${year}/${month}/${day}`;
+    const formattedDate = `${year}-${month}-${day}`;
 
-  //   console.log(formattedDate);
-  // });
+    document.getElementById("tableDiv").style.display = "none";
+    document.getElementById("loadingScreen").style.display = "block";
+
+    if (tab != undefined) {
+      tab.clear();
+    }
+
+    var url = ""
+
+    if (p.checked == true) {
+      url = "/v1/politician-getall/";
+    } else if (pg.checked == true) {
+      var t = "/v1/political-group-getall/";
+    } else {
+      document.getElementById("loadingScreen").style.display = "none"; // Nascondi la schermata di caricamento
+      return 0;
+    }
+
+    url += $("#select_pol").val()[0] +
+      "?date_=" +
+      formattedDate +
+      url_a +
+      url_c +
+      url_p +
+      url_t +
+      "&kind_=" +
+      cb;
+
+    fetchData(url).then(data => {
+      data.data.forEach((r) => {
+        var newRow = [
+          r[0],
+          r[1],
+          r[6],
+          r[7],
+          r[2],
+          r[8]
+        ];
+        tab.row.add(newRow).draw(false);
+        document.getElementById("loadingScreen").style.display = "none";
+        document.getElementById("tableDiv").style.display = "block";
+      });
+    });
+
+  });
   functionIsRunning = false;
 }

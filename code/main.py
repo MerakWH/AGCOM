@@ -17,11 +17,11 @@ import datetime as dt
 
 warnings.filterwarnings('ignore')
 
-DB_HOST = "dpg-cva6ogbtq21c73bs2j8g-a.frankfurt-postgres.render.com"
+DB_HOST = "dpg-cvu065p5pdvs73e2gvag-a.frankfurt-postgres.render.com"
 DB_PORT = "5432"
-DB_NAME = "agcom_dati_monitoraggio"
-DB_USER = "agcom_dati_monitoraggio_user"
-DB_PASSWORD = "o6uuicatOkvkAKZc41deozEBd56g8nrm"
+DB_NAME = "agcom_dati_monitoraggio_v0ik"
+DB_USER = "agcom_dati_monitoraggio_v0ik_user"
+DB_PASSWORD = "0rqhxQ8XnEZzx3KNHmYQnQHv321YbmC5"
 TABLE_NAME = "records"
 
 def query_postgresql(query, params=None):
@@ -2188,3 +2188,130 @@ async def get_program_political_groups(
     final_list = [{"name": name, "minutes": minutes} for name, minutes in result]
 
     return { "program": program, "pol": final_list }
+
+# -------------------------------------------------------
+
+@app.get("/v1/politician-getall/{name}")
+async def get_politician_getall(
+    name: str,
+    date_: str = Query(default="all"),
+    kind_: str = Query(default="both", enum=kind),
+    channel_: str = Query(default="all"),
+    affiliation_: str = Query(default="all"),
+    program_: str = Query(default="all"),
+    topic_: str = Query(default="all")
+):
+    """
+    Return for a politician, all data from selected filters
+    """
+    if name not in politicians_list:
+        raise HTTPException(status_code=400, detail="Invalid name")
+
+    conditions = ["name != 'Soggetto Collettivo'", "fullname = %s"]
+    params = [name]
+
+    if channel_ != "all":
+        if channel_ not in channels:
+            raise HTTPException(status_code=400, detail="Invalid channel")
+        conditions.append("channel = %s")
+        params.append(channel_)
+    if affiliation_ != "all":
+        if affiliation_ not in affiliations:
+            raise HTTPException(status_code=400, detail="Invalid affiliation")
+        conditions.append("affiliation = %s")
+        params.append(affiliation_)
+    if program_ != "all":
+        if program_ not in programs:
+            raise HTTPException(status_code=400, detail="Invalid program")
+        conditions.append("program = %s")
+        params.append(program_)
+    if topic_ != "all":
+        if topic_ not in topics:
+            raise HTTPException(status_code=400, detail="Invalid topic")
+        conditions.append("topic = %s")
+        params.append(topic_)
+    if kind_ != "both":
+        conditions.append("kind = %s")
+        params.append(kind_)
+    if date_ != "all":
+        try:
+            datetime.strptime(date_, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Try with YYYY-MM-DD")
+        conditions.append("day = %s")
+        params.append(date_)
+
+    condition_str = " AND ".join(conditions)
+
+    query = f"""
+        SELECT *
+        FROM {TABLE_NAME}
+        WHERE {condition_str}
+    """
+
+    data = query_postgresql(query, params)
+
+    return {"politician": name, "data": data}
+
+
+@app.get("/v1/political-group-getall/{name}")
+async def get_political_group_getall(
+    name: str,
+    date_: str = Query(default="all"),
+    kind_: str = Query(default="both", enum=kind),
+    channel_: str = Query(default="all"),
+    affiliation_: str = Query(default="all"),
+    program_: str = Query(default="all"),
+    topic_: str = Query(default="all")
+):
+    """
+    Return for a political group, all data from selected filters
+    """
+    if name not in political_groups_list:
+        raise HTTPException(status_code=400, detail="Invalid name")
+
+    conditions = ["name = 'Soggetto Collettivo'", "lastname = %s"]
+    params = [name]
+
+    if channel_ != "all":
+        if channel_ not in channels:
+            raise HTTPException(status_code=400, detail="Invalid channel")
+        conditions.append("channel = %s")
+        params.append(channel_)
+    if affiliation_ != "all":
+        if affiliation_ not in affiliations:
+            raise HTTPException(status_code=400, detail="Invalid affiliation")
+        conditions.append("affiliation = %s")
+        params.append(affiliation_)
+    if program_ != "all":
+        if program_ not in programs:
+            raise HTTPException(status_code=400, detail="Invalid program")
+        conditions.append("program = %s")
+        params.append(program_)
+    if topic_ != "all":
+        if topic_ not in topics:
+            raise HTTPException(status_code=400, detail="Invalid topic")
+        conditions.append("topic = %s")
+        params.append(topic_)
+    if kind_ != "both":
+        conditions.append("kind = %s")
+        params.append(kind_)
+    if date_ != "all":
+        try:
+            datetime.strptime(date_, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Try with YYYY-MM-DD")
+        conditions.append("day = %s")
+        params.append(date_)
+
+    condition_str = " AND ".join(conditions)
+
+    query = f"""
+        SELECT *
+        FROM {TABLE_NAME}
+        WHERE {condition_str}
+    """
+
+    data = query_postgresql(query, params)
+
+    return {"politician": name, "data": data}
