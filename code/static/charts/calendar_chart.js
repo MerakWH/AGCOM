@@ -1,5 +1,4 @@
 async function calendarChart() {
-  select_pol_length = 1;
   controller.abort();
   while(functionIsRunning){
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -9,7 +8,10 @@ async function calendarChart() {
   }
   functionIsRunning = true;
   controller = new AbortController();
-  selectPolLength1();
+  if(select_pol_length != 1){
+    select_pol_length = 1;
+    selectPolLength1();
+  }
 
   var cC = document.getElementById("calendarChart");
   cC.style.display = "block";
@@ -204,7 +206,21 @@ async function calendarChart() {
   calendarChartInstance.setOption(option);
   calendarChartInstance.hideLoading();
 
-  calendarChartInstance.on("click", function (variable) {
+  calendarChartInstance.on("click", async function (variable) {
+    if(variable.data[1] == 0){
+      document.getElementById("tableDiv").style.display = "none";
+      return;
+    }
+    controller.abort();
+    while(functionIsRunning){
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      if (!controller.signal.aborted){
+        return;
+      }
+    }
+    functionIsRunning = true;
+    controller = new AbortController();
+
     const timestamp = variable.data[0];
     const date = new Date(timestamp);
 
@@ -227,9 +243,10 @@ async function calendarChart() {
     if (p.checked == true) {
       url = "/v1/politician-getall/";
     } else if (pg.checked == true) {
-      var t = "/v1/political-group-getall/";
+      url = "/v1/political-group-getall/";
     } else {
       document.getElementById("loadingScreen").style.display = "none"; // Nascondi la schermata di caricamento
+      functionIsRunning = false;
       return 0;
     }
 
@@ -244,21 +261,23 @@ async function calendarChart() {
       cb;
 
     fetchData(url).then(data => {
-      data.data.forEach((r) => {
-        var newRow = [
-          r[0],
-          r[1],
-          r[6],
-          r[7],
-          r[2],
-          r[8]
-        ];
-        tab.row.add(newRow).draw(false);
-        document.getElementById("loadingScreen").style.display = "none";
-        document.getElementById("tableDiv").style.display = "block";
-      });
+      if(data != null){
+        data.data.forEach((r) => {
+          var newRow = [
+            r[0],
+            r[1],
+            r[6],
+            r[7],
+            r[2],
+            r[8]
+          ];
+          tab.row.add(newRow).draw(false);
+          document.getElementById("loadingScreen").style.display = "none";
+          document.getElementById("tableDiv").style.display = "block";
+        });
+      }
     });
-
+    functionIsRunning = false;
   });
   functionIsRunning = false;
 }

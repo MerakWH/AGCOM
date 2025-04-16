@@ -24,6 +24,10 @@
   <!-- Template Main CSS File -->
   <link href="static/assets/application/css/style.css" rel="stylesheet">
 
+  <style>
+
+  </style>
+
 </head>
 
 <body>
@@ -46,18 +50,18 @@
   <ul class="sidebar-nav" id="sidebar-nav">
 
     <li class="nav-item">
-      <a class="nav-link collapsed" href="/">  
+      <a class="nav-link collapsed" href="/index">  
         <i class="bi bi-grid"></i>
         <span>Home</span>
       </a>
     </li><!-- End Dashboard Nav -->
 
     <li class="nav-item">
-      <a class="nav-link collapsed" href="/index">
-        <i class="bi bi-bar-chart"></i>
-        <span>Grafici</span>
+      <a class="nav-link collapsed " href="/docs">
+        <i class="bi-archive"></i>
+        <span>Documentazione APIs</span>
       </a>
-    </li><!-- End Charts Page Nav -->
+    </li>
 
 
     <li class="nav-item">
@@ -92,25 +96,81 @@
 
     <section class="section faq">
       <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-6" style="width: 100%;">
 
           <div class="card basic">
             <div class="card-body">
               <h5 class="card-title">Basic Questions</h5>
 
               <div>
-                <h6>1. Nisi ut ut exercitationem voluptatem esse sunt rerum?</h6>
-                <p>Saepe perspiciatis ea. Incidunt blanditiis enim mollitia qui voluptates. Id rem nulla tenetur nihil in unde rerum. Quae consequatur placeat qui cumque earum eius omnis quos.</p>
+                <h6>Di cosa si tratta?</h6>
+                <p>Questa è una dashboard interattiva basata sui dati pubblicati da AGCOM riguardo alla presenza quotidiana di partiti, esponenti politici e movimenti su televisione e radio italiana.<br> I dati sono raccolti ogni sei mesi, distribuiti con una licenza che ne permette il riuso attraverso file XML e mostrano chi ha avuto più visibilità, su quali canali e in quali programmi.</p>
               </div>
 
               <div class="pt-2">
-                <h6>2. Reiciendis dolores repudiandae?</h6>
-                <p>Id ipsam non ut. Placeat doloremque deserunt quia tenetur inventore laboriosam dolores totam odio. Aperiam incidunt et. Totam ut quos sunt atque modi molestiae dolorem.</p>
+                <h6>Di che tipo di dati si tratta?</h6>
+                <p>I dati rappresentano:
+                  <ul>
+                    <li>Le presenze quotidiane di figure politiche e movimenti nei programmi TV e radio</li>
+                    <li>Gli interventi in prima persona (parlato) e le notizie che li riguardano</li>
+                    <li>La distinzione tra tipi di canali, programma e macroargomento trattato</li>
+                    <li>Il collegamento tra i soggetti coinvolti e il loro schieramento politico o istituzionale</li>
+                  </ul>
+                </p>
               </div>
 
               <div class="pt-2">
-                <h6>3. Qui qui reprehenderit ut est illo numquam voluptatem?</h6>
-                <p>Enim inventore in consequuntur ipsam voluptatem consequatur beatae. Nostrum consequuntur voluptates et blanditiis.</p>
+                <h6>A cosa può servire?</h6>
+                <p>
+                  <ul>
+                    <li>Visualizzare e analizzare quanto spazio mediatico ricevono partiti e figure politiche</li>
+                    <li>Individuare squilibri, tendenze e differenze tra canali e programmi</li>
+                    <li>Favorire la trasparenza e l'accountability nel rapporto tra politica e media</li>
+                  </ul>
+                </p>
+              </div>
+
+              <div class="pt-2">
+                <h6>Quali operazioni si possono eseguire?</h6>
+                <p>
+                  <ol>
+                    <li>Selezionare un periodo di riferimento</li>
+                    <li>Filtrare i dati per movimento, figura politica, programma o canale</li>
+                    <li>Esplorare i diversi tipi di intervento: presenza, citazione, notizia</li>
+                    <li>Visualizzare l'andamento nel tempo e confrontare soggetti diversi</li>
+                    <li>Esportare grafici e tabelle per uso personale o didattico</li>
+                  </ol>
+              </p>
+              </div>
+
+              <div class="pt-2">
+                <h6>Provenienza dei dati</h6>
+                <p>I dati sono pubblicati ufficialmente da AGCOM. <br>Ogni semestre, l'Autorità rende disponibili questi dati in formato XML con il monitoraggio delle presenze politiche nei media. <br>Questo sito rielabora quei dati per renderli più fruibili, navigabili e comparabili.</p>
+              </div>
+
+              <div class="pt-2">
+                <h6>Si tratta di un progetto ufficiale AGCOM?</h6>
+                <p>No. <br>È un progetto indipendente, non affiliato ad AGCOM, nato con l'obiettivo di rendere i dati pubblici più accessibili e utili per l'opinione pubblica, i ricercatori e i giornalisti.</p>
+              </div>
+
+              <div class="pt-2">
+                <h6>Chi ha reso possibile tutto questo?</h6>
+                <p>Questo progetto è stato reso possibile grazie al lavoro del gruppo Copernicani, che ha sollecitato più volte AGCOM a rilasciare i dati in formato aperto. <br>Grazie a questa azione civica di pressione e dialogo, e al lavoro di Merak Winston Hall e Maurizio Napolitano oggi è possibile analizzare in modo libero e trasparente il rapporto tra media e politica.</p>
+              </div>
+
+              <div class="pt-2">
+                <h6>Come avviene l'aggiornamento dei dati?</h6>
+                <p>Al momento i dati vengono aggiornati manualmente, in corrispondenza delle pubblicazioni semestrali di AGCOM.</p>
+              </div>
+
+              <div class="pt-2">
+                <h6>E' possibile integrare i dati con altri servizi?</h6>
+                <p>Questo sito si presenta anche con delle RestAPI per favorire a terzi il riuso dei dati in altre applicazioni o analisi.</p>
+              </div>
+              
+              <div class="pt-2">
+                <h6>Suggerimenti e modifiche</h6>
+                <p>Ogni feedback è prezioso per migliorare il progetto. <br>Consigliamo di contattare gli sviluppatori attraverso il sito e visitare il repository GitHub.</p>
               </div>
 
             </div>

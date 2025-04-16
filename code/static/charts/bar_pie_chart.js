@@ -9,9 +9,10 @@ async function barPieChart() {
   functionIsRunning = true;
   controller = new AbortController();
   if(select_pol_length != 4){
+    select_pol_length = 4;
     selectPolLength4();
   }
-  select_pol_length = 4;
+
   function dataFormatter(obj, list, m_y, x_y) {
     var temp;
     for (var year = m_y; year <= x_y; year++) {

@@ -1,6 +1,18 @@
 async function radarChart3() {
-  select_pol_length = 10;
-  selectPolLength10();
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
+  if(select_pol_length != 10){
+    select_pol_length = 10;
+    selectPolLength10();
+  }
+
   var rC = document.getElementById("radarChart3");
   rC.style.display = "block";
   document.getElementById("barChart2").style.display = "none";
@@ -28,6 +40,7 @@ async function radarChart3() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "<u>Analisi Programma</u><span>&nbsp&nbsp&nbsp/seleziona fino a 10 politici-partiti </span><br><br>Maggiori esponenti nel programma <br><br><span>É necessario selezionare almeno un programma e scegliere tra Politici e Partiti per utilizzare questo grafico. </span>";
+    functionIsRunning = false;
     return 0;
   }
   radarChart3Instance = echarts.init(rC);
@@ -37,6 +50,7 @@ async function radarChart3() {
   } else if (pg.checked == true) {
     var t = "/v1/program-political-groups/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
   var url_c = "";
@@ -68,6 +82,10 @@ async function radarChart3() {
   var values = [];
   if (selected_pol != undefined && selected_pol != "") {
     for (const value of selected_pol) {
+      if (controller.signal.aborted) {
+        functionIsRunning = false;
+        return;
+      }
       const url =
         t +
         encodeURIComponent(selected_program) +
@@ -119,6 +137,7 @@ async function radarChart3() {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Radar Chart</span> <br><br> NO DATA FOUND";
     radarChart3Instance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
 
@@ -170,4 +189,5 @@ async function radarChart3() {
   };
   radarChart3Instance.setOption(option);
   radarChart3Instance.hideLoading();
+  functionIsRunning = false;
 }

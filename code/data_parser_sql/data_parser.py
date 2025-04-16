@@ -12,6 +12,14 @@ import numpy as np
 import chardet
 
 
+db_config = {
+    'dbname': 'agcom_dati_monitoraggio_v0ik',
+    'user': 'agcom_dati_monitoraggio_v0ik_user',
+    'password': '0rqhxQ8XnEZzx3KNHmYQnQHv321YbmC5',
+    'host': 'dpg-cvu065p5pdvs73e2gvag-a.frankfurt-postgres.render.com',  
+    'port': '5432'
+}
+
 # Intestazioni per simulare un browser
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
@@ -42,6 +50,57 @@ def get_links():
         list_url.extend(filtered_links)     # aggiungi alla lista finale
         i=i+1   # prossima pagina
     return list_url
+
+
+#FUNZIONE PER VEDERE SE I DATI DEL FILE E' GIA' STATO CARICATO SUL DATABASE
+def check_files(list_url):
+    try:
+        # Connessione al database PostgreSQL
+        conn = psycopg2.connect(
+            dbname=db_config['dbname'],
+            user=db_config['user'],
+            password=db_config['password'],
+            host=db_config['host'],
+            port=db_config['port']
+        )
+        cursor = conn.cursor()
+        print('connessione avvenuta!')
+
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS files_list (
+            filename TEXT
+        )
+        """
+
+        cursor.execute(create_table_query)
+        conn.commit()
+
+        retrieve_filenames_query = """
+        SELECT filename
+        FROM files_list
+        """
+
+        cursor.execute(retrieve_filenames_query)
+        filenames_ = cursor.fetchall()
+        filenames = [url[0] for url in filenames_]
+
+        final_list = []
+
+        for file in list_url:
+            if file not in filenames:
+                final_list.append(file)
+    
+        cursor.executemany("INSERT INTO files_list (filename) VALUES (%s)", [(f,) for f in final_list])
+        conn.commit()
+
+    except Exception as e:
+        print(f"Errore durante il check dei files: {e}")
+
+    finally:
+        cursor.close()
+        conn.close()
+        
+    return final_list
 
 
 #FUNZIONE PER TROVARE IL LINK PER IL FILE XML PER OGNI PAGINA TROVATA
@@ -122,8 +181,14 @@ def from_xml_to_csv(file_xml):
                 kind = 'news'
             else:
                 continue
+            
+            if name == 'Soggetto Collettivo' or name == 'Soggetto collettivo' or name == 'soggetto collettivo' or name == 'soggetto Collettivo':
+                name = 'Soggetto Collettivo'
+                fullname = lastname
+            else:
+                fullname = name + " " + lastname
 
-            writer.writerow([channel, program, day, lastname, name, affiliation, topic, duration, kind])
+            writer.writerow([channel, program, day, lastname, name, affiliation, topic, duration, kind, fullname])
 
     print("Conversione completata!")
 
@@ -184,16 +249,8 @@ def fix_encoding(input_file):
         print(f"Il file {input_file} è già in UTF-8.")
 
 
-
 #METODO PER INSERIRE I DATI DEI FILE CSV NEL SERVER POSTGRESQL
 def insert_data_postgresql(csv_file_list):
-    db_config = {
-        'dbname': 'agcom_dati_monitoraggio',
-        'user': 'agcom_dati_monitoraggio_user',
-        'password': 'o6uuicatOkvkAKZc41deozEBd56g8nrm',
-        'host': 'dpg-cva6ogbtq21c73bs2j8g-a.frankfurt-postgres.render.com',  
-        'port': '5432'
-    }
     try:
         # Connessione al database PostgreSQL
         conn = psycopg2.connect(
@@ -205,6 +262,24 @@ def insert_data_postgresql(csv_file_list):
         )
         cursor = conn.cursor()
         print('connessione avvenuta!')
+
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS records (
+            channel TEXT,
+            program TEXT,
+            day DATE,
+            lastname TEXT,
+            name TEXT,
+            affiliation TEXT,
+            topic TEXT,
+            duration INTEGER,
+            kind TEXT,
+            fullname TEXT
+        )
+        """
+
+        cursor.execute(create_table_query)
+        conn.commit()
 
         for csv_file in csv_file_list:
             #Modifica caratteri sbagliati
@@ -240,10 +315,10 @@ def insert_data_postgresql(csv_file_list):
 
 csv_filenames = []
 
-link_list = get_links()
+all_link_list = get_links()
+link_list = check_files(all_link_list)
 for link in link_list:
     xml_link = find_xml_link(link)
     create_csv(xml_link)
-
 
 insert_data_postgresql(csv_filenames)

@@ -1,6 +1,18 @@
 async function radarChart2() {
-  select_pol_length = 10;
-  selectPolLength10();
+  controller.abort();
+  while(functionIsRunning){
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!controller.signal.aborted){
+      return;
+    }
+  }
+  functionIsRunning = true;
+  controller = new AbortController();
+  if(select_pol_length != 10){
+    select_pol_length = 10;
+    selectPolLength10();
+  }
+
   var rC = document.getElementById("radarChart2");
   rC.style.display = "block";
   document.getElementById("barChart2").style.display = "none";
@@ -28,6 +40,7 @@ async function radarChart2() {
   ) {
     document.querySelector(".card-title").innerHTML =
       "<u>Analisi Canale</u><span>&nbsp&nbsp&nbsp/seleziona fino a 10 politici-partiti </span><br><br>Maggiori esponenti nel canale <br><br><span>É necessario selezionare almeno un canale e scegliere tra Politici e Partiti per utilizzare questo grafico. </span>";
+    functionIsRunning = false;
     return 0;
   }
   radarChart2Instance = echarts.init(rC);
@@ -37,6 +50,7 @@ async function radarChart2() {
   } else if (pg.checked == true) {
     var t = "/v1/channel-political-groups/";
   } else {
+    functionIsRunning = false;
     return 0;
   }
   var url_p = "";
@@ -68,6 +82,10 @@ async function radarChart2() {
   var values = [];
   if (selected_pol != undefined && selected_pol != "") {
     for (const value of selected_pol) {
+      if (controller.signal.aborted) {
+        functionIsRunning = false;
+        return;
+      }
       const url =
         t +
         encodeURIComponent(selected_channel) +
@@ -119,6 +137,7 @@ async function radarChart2() {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Radar Chart</span> <br><br> NO DATA FOUND";
     radarChart2Instance.hideLoading();
+    functionIsRunning = false;
     return 0;
   }
 
@@ -170,4 +189,5 @@ async function radarChart2() {
   };
   radarChart2Instance.setOption(option);
   radarChart2Instance.hideLoading();
+  functionIsRunning = false;
 }
