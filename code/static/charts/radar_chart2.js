@@ -101,6 +101,9 @@ async function radarChart2() {
         url_p +
         url_t;
       const data = await fetchData(url);
+      if (!data || data.pol.length == 0) {
+        continue;
+      }
       if (data.pol[0] != undefined) {
         names.push(data.pol[0].name);
         values.push(data.pol[0].minutes);
@@ -123,10 +126,13 @@ async function radarChart2() {
       url_p +
       url_t;
     const data = await fetchData(url);
-    data.pol.forEach((p) => {
-      names.push(p.name);
-      values.push(p.minutes);
-    });
+    if(!data || data.pol.length != 0){
+    } else {
+      data.pol.forEach((p) => {
+        names.push(p.name);
+        values.push(p.minutes);
+      });
+    }
   }
 
   if (

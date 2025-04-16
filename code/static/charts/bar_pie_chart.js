@@ -139,7 +139,7 @@ async function barPieChart() {
       url_t;
     const data = await fetchData(url);
     if (!data) {
-      break;
+      continue;
     }
     total_minutes += data.total;
     if (p.checked == true) {

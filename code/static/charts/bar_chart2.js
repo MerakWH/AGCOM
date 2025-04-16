@@ -112,7 +112,7 @@ async function barChart2() {
       i++;
       const data = await fetchData(url);
       if (!data || data.topics.length == 0) {
-        break;
+        continue;
       } else {
         const lengthData = data.topics.length;
         while (data.topics.length > 0) {

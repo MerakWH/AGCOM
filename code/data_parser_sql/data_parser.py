@@ -10,6 +10,7 @@ from corrections import corrections_
 import pandas as pd
 import numpy as np
 import chardet
+import sys
 
 
 db_config = {
@@ -317,6 +318,8 @@ csv_filenames = []
 
 all_link_list = get_links()
 link_list = check_files(all_link_list)
+if len(link_list) == 0:
+    sys.exit("I file condivisi da AGCOM sono già tutti caricati!")
 for link in link_list:
     xml_link = find_xml_link(link)
     create_csv(xml_link)

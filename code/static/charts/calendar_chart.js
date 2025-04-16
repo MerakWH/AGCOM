@@ -135,6 +135,8 @@ async function calendarChart() {
     }
     i++;
   }
+  heightPixels = (200 + i*200).toString() + "px";
+  document.getElementById("calendarChart").style.height = heightPixels;
   if (total_minutes == 0) {
     document.querySelector(".card-title").innerHTML =
       "Charts <span>/Calendar Chart</span> <br><br> NO DATA FOUND";

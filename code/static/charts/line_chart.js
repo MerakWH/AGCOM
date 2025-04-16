@@ -106,9 +106,8 @@ async function lineChart() {
       url_p +
       url_t;
     const data = await fetchData(url);
-    if (!data) {
-      functionIsRunning = false;
-      return;
+    if (!data || data.interventions.length == 0) {
+      continue;
     }
     total_minutes += data.total;
     years = data["years"];

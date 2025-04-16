@@ -120,7 +120,7 @@ async function lineChart2() {
         var url = `${baseUrl}&page=${j}`;
         const data = await fetchData(url);
         if (!data || data.interventions.length == 0) {
-          break;
+          continue;
         }
         var temp = [];
         data.interventions.forEach((v) => {

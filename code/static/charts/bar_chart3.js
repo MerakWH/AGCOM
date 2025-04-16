@@ -224,9 +224,6 @@ async function barChart3() {
     var check_selection = false;
     var sbC = document.getElementById("stackedBarChart");
     sbC.style.display = "block";
-    if (p.name == "altro") {
-      sbC.style.height = "4000px";
-    }
     if (stackedBarChartInstance !== null) {
       stackedBarChartInstance.dispose();
     }
@@ -273,8 +270,7 @@ async function barChart3() {
           cb;
         temp_data3 = await fetchData(url3);
         if (!temp_data3) {
-          functionIsRunning = false;
-          return;
+          continue;
         }
         temp_data3.programs.forEach((pgrm) => {
           data3.programs.push(pgrm);
@@ -286,6 +282,8 @@ async function barChart3() {
       functionIsRunning = false;
       return;
     }
+    heightPixels = (50 + data3.programs.length*50).toString() + "px";
+    document.getElementById("stackedBarChart").style.height = heightPixels;
     var y = [];
     data3.programs.forEach((r) => {
       y.push(r.program);
