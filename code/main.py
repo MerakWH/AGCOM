@@ -177,7 +177,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/code/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def read_index():
