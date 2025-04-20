@@ -62,11 +62,15 @@ async function radarChart2() {
   ) {
     url_p += `&program_=${encodeURIComponent($("#select_programs").val()[0])}`;
   }
-  if (
-    $("#select_topics").val()[0] != undefined &&
-    $("#select_topics").val()[0] != ""
-  ) {
-    url_t += `&topic_=${encodeURIComponent($("#select_topics").val()[0])}`;
+  var topic_index = 0;
+  while ($("#select_topics").val()[topic_index] != undefined){
+    if (
+      $("#select_topics").val()[topic_index] != undefined &&
+      $("#select_topics").val()[topic_index] != ""
+    ) {
+      url_t += `&topics_list=${encodeURIComponent($("#select_topics").val()[topic_index])}`;
+    }
+    topic_index++;
   }
   if (
     $("#select_affiliations").val()[0] != undefined &&
@@ -126,7 +130,7 @@ async function radarChart2() {
       url_p +
       url_t;
     const data = await fetchData(url);
-    if(!data || data.pol.length != 0){
+    if(!data || data.pol.length == 0){
     } else {
       data.pol.forEach((p) => {
         names.push(p.name);

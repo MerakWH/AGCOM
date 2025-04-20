@@ -1,4 +1,6 @@
 async function handleOptionChange(radio) {                      // initializing politicians/political group list when radio is clicked
+  controller_selection.abort();
+  controller_selection = new AbortController();
   const select_pol =  $('#select_pol');
   const select_affiliations = $("#select_affiliations");
   select_pol.prop('disabled', true).select2({                   //empty the select and block it while loading
@@ -13,7 +15,7 @@ async function handleOptionChange(radio) {                      // initializing 
     ) {                                                         //serach only the politicians that participated in that affiliation
       var affiliation_url = `${encodeURIComponent(select_affiliations.val()[0])}`;
       var url = "/v1/politicians-affiliation/" + affiliation_url;
-      const data = await fetchData(url);
+      const data = await fetchDataSelection(url);
       if (data) {
         data["politicians"].forEach((valore) => {
           const option = new Option(valore, valore, false, false);
@@ -22,7 +24,7 @@ async function handleOptionChange(radio) {                      // initializing 
       }
     }else{                                                      //if no affiliation is selected, search every politician
       var url = "/v1/data-for-select";
-      const data = await fetchData(url);
+      const data = await fetchDataSelection(url);
       if (data) {
         data["politicians_list"].forEach((valore) => {
           const option = new Option(valore, valore, false, false);
@@ -39,7 +41,7 @@ async function handleOptionChange(radio) {                      // initializing 
     select_affiliations.empty();
 
     var url = "/v1/data-for-select";
-    const data = await fetchData(url);
+    const data = await fetchDataSelection(url);
     if (data) {
       data["political_groups_list"].forEach((valore) => {
         const option = new Option(valore, valore, false, false);
@@ -56,6 +58,8 @@ async function handleOptionChange(radio) {                      // initializing 
 
 
 async function fetchChannels() {
+  controller_selection.abort();
+  controller_selection = new AbortController();
   const select_channels = $('#select_channels');
   var old_value = undefined;
   if(select_channels.val().length > 0){
@@ -75,7 +79,7 @@ async function fetchChannels() {
     var i = 1;
     while (true) {                                                //retrieve channels
       var url = "/v1/channels" + `?page=${i}` + selected_program;
-      const data = await fetchData(url);
+      const data = await fetchDataSelection(url);
       if (!data) {
         break;
       }
@@ -88,7 +92,7 @@ async function fetchChannels() {
     }
   } else {
     var url = "/v1/data-for-select";
-    const data = await fetchData(url);
+    const data = await fetchDataSelection(url);
     if (data) {
       data["channels"].forEach((valore) => {
         const option = new Option(valore, valore, false, false);
@@ -109,6 +113,8 @@ async function fetchChannels() {
 
 
 async function fetchPrograms() {
+  controller_selection.abort();
+  controller_selection = new AbortController();
   const select_programs = $('#select_programs');
   var old_value = undefined;
   if(select_programs.val().length > 0){
@@ -129,7 +135,7 @@ async function fetchPrograms() {
     var i = 1;
     while (true) {                                                //retrieve programs
       var url = "/v1/programs" + `?page=${i}` + selected_channel;
-      const data = await fetchData(url);
+      const data = await fetchDataSelection(url);
       if (!data) {
         break;
       }
@@ -142,7 +148,7 @@ async function fetchPrograms() {
     }
   } else {
     var url = "/v1/data-for-select";
-    const data = await fetchData(url);
+    const data = await fetchDataSelection(url);
     if (data) {
       data["programs"].forEach((valore) => {
         const option = new Option(valore, valore, false, false);
@@ -163,6 +169,8 @@ async function fetchPrograms() {
 
 
 async function fetchTopics() {
+  controller_selection.abort();
+  controller_selection = new AbortController();
   const select_topics = $('#select_topics');
   select_topics.prop('disabled', true).select2({                //empty the select and block it while loading
     placeholder: 'Caricamento...'
@@ -172,7 +180,7 @@ async function fetchTopics() {
   var i = 1;
   while (true) {                                                //retrieve data
     var url = "/v1/topics" + `?page=${i}`;
-    const data = await fetchData(url);
+    const data = await fetchDataSelection(url);
     if (!data) {
       break;
     }
@@ -186,12 +194,13 @@ async function fetchTopics() {
 
   select_topics.prop('disabled', false).select2({               //re-enable select programs
     placeholder: 'Cerca argomento',
-    maximumSelectionLength: 1
   });
 }
 
 
 async function fetchAffiliations() {
+  controller_selection.abort();
+  controller_selection = new AbortController();
   const select_affiliations = $('#select_affiliations');
   var old_value = undefined;
   if(select_affiliations.val().length > 0){
@@ -225,7 +234,7 @@ async function fetchAffiliations() {
       var i = 1;
       while (true) {                                              //retrieve affiliations
         var url = "/v1/affiliations" + `?page=${i}` + selected_politician;
-        const data = await fetchData(url);
+        const data = await fetchDataSelection(url);
         if (data === null) {
           select_affiliations.prop('disabled', false).select2({
             placeholder: 'Cerca partito'
@@ -242,7 +251,7 @@ async function fetchAffiliations() {
       }
     } else {
       var url = "/v1/data-for-select";
-      const data = await fetchData(url);
+      const data = await fetchDataSelection(url);
       if (data === null) {
         select_affiliations.prop('disabled', false).select2({
           placeholder: 'Cerca partito'
@@ -286,7 +295,9 @@ async function updatePoliticians() {
 
 
 async function initializeSelects(){                             //initialize selects
-  const data = await fetchData('/v1/data-for-select');
+  controller_selection.abort();
+  controller_selection = new AbortController();
+  const data = await fetchDataSelection('/v1/data-for-select');
   if (!data) {
     return;
   }
@@ -329,7 +340,6 @@ async function initializeSelects(){                             //initialize sel
   });
   select_topics.prop('disabled', false).select2({
     placeholder: 'Cerca argomento',
-    maximumSelectionLength: 1
   });
 
   //initialize dates
