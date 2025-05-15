@@ -10,5 +10,5 @@ psycopg2>=2.9.0
 starlette>=0.14.2
 asyncpg
 pandas
-numpy
+numpy<2
 chardet
