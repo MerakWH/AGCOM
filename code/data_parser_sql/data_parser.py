@@ -14,10 +14,10 @@ import sys
 
 
 db_config = {
-    'dbname': 'agcom_dati_monitoraggio_v0ik',
-    'user': 'agcom_dati_monitoraggio_v0ik_user',
-    'password': '0rqhxQ8XnEZzx3KNHmYQnQHv321YbmC5',
-    'host': 'dpg-cvu065p5pdvs73e2gvag-a.frankfurt-postgres.render.com',  
+    'dbname': 'agcom_dati_monitoraggio_5iv9',
+    'user': 'agcom_dati_monitoraggio_5iv9_user',
+    'password': '9k6kYE6wW1hCzGc9J2Bf6aTPuOnxApFF',
+    'host': 'dpg-d0j08obe5dus73a1fjj0-a.frankfurt-postgres.render.com',  
     'port': '5432'
 }
 

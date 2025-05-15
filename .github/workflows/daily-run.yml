@@ -1,0 +1,26 @@
+name: Esegui data_parser.py ogni giorno
+
+on:
+  schedule:
+    - cron: '0 7 * * *'  # ogni giorno alle 07:00 UTC
+  workflow_dispatch:
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout del repository
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Installa dipendenze
+      run: |
+        pip install -r requirements.txt || true
+
+    - name: Esegui data_parser.py
+      run: python code/data_parser_sql/data_parser.py
