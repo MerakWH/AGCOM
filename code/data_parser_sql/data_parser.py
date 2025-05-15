@@ -319,7 +319,8 @@ csv_filenames = []
 all_link_list = get_links()
 link_list = check_files(all_link_list)
 if len(link_list) == 0:
-    sys.exit("I file condivisi da AGCOM sono già tutti caricati!")
+    print("I file condivisi da AGCOM sono già tutti caricati!")
+    sys.exit(0)
 for link in link_list:
     xml_link = find_xml_link(link)
     create_csv(xml_link)
