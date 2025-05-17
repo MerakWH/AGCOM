@@ -30,6 +30,37 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+  <style>
+    .footerContainer{
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .footerLogoContainer{
+      position: absolute; 
+      left: 0;
+      margin-left: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .footerContainer{
+        display: unset;
+        justify-content: center;
+        position: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .footerLogoContainer{
+        position: unset;
+        left: unset;
+        margin-left: unset;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -129,19 +160,26 @@
 
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
-    <div class="copyright">
-      Project by <strong><span>@merak</span></strong> - data by AGCOM
+    <div class="footerContainer">
+      <div>
+        <div class="copyright">
+          Project by <strong><span>@merak</span></strong> - data by AGCOM
+        </div>
+        <div class="credits">
+          <!-- All the links in the footer should remain intact. -->
+          <!-- You can delete the links only if you purchased the pro version. -->
+          <!-- Licensing information: https://bootstrapmade.com/license/ -->
+          <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
+          &copy; Template by NiceAdmin, designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        </div>
+      </div>
+      <div class="footerLogoContainer">
+        <a class="logo d-flex align-items-center">
+          <img src="static/assets/application/img/logo-agcom.jpg" alt="">
+        </a>
+      </div>
     </div>
-    <div class="credits">
-      <!-- All the links in the footer should remain intact. -->
-      <!-- You can delete the links only if you purchased the pro version. -->
-      <!-- Licensing information: https://bootstrapmade.com/license/ -->
-      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      &copy; Template by NiceAdmin, designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
-    </div>
-    <a class="logo d-flex align-items-center" style="width: 200px; margin-left: 10px; margin-top: 10px;">
-      <img src="static/assets/application/img/logo-agcom.jpg" alt="">
-    </a>
+
   </footer><!-- End Footer -->
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
