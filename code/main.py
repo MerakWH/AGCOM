@@ -20,11 +20,11 @@ import datetime as dt
 from contextlib import asynccontextmanager
 warnings.filterwarnings('ignore')
 
-DB_HOST = "dpg-d0j08obe5dus73a1fjj0-a.frankfurt-postgres.render.com"
+DB_HOST = "dpg-d1gl8onfte5s738q1160-a.frankfurt-postgres.render.com"
 DB_PORT = "5432"
-DB_NAME = "agcom_dati_monitoraggio_5iv9"
-DB_USER = "agcom_dati_monitoraggio_5iv9_user"
-DB_PASSWORD = "9k6kYE6wW1hCzGc9J2Bf6aTPuOnxApFF"
+DB_NAME = "agcom_dati_monitoraggio_mr2f"
+DB_USER = "agcom_dati_monitoraggio_mr2f_user"
+DB_PASSWORD = "6MMMPLGLTpESi1js8gyIzFf20hxrRpqW"
 TABLE_NAME = "records"
 
 
