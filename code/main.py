@@ -8,6 +8,7 @@ Date: 2024-07-13
 
 import asyncpg
 import asyncio
+import logging
 import os
 import psycopg2
 from typing import Annotated
@@ -18,13 +19,15 @@ from datetime import datetime
 import warnings
 from datetime import datetime
 import datetime as dt
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, closing
 warnings.filterwarnings('ignore')
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("Set the DATABASE_URL environment variable before starting AGCOM.")
 TABLE_NAME = "records"
+STARTUP_CONNECT_TIMEOUT = 10
+logger = logging.getLogger("uvicorn.error")
 
 
 db_pool = None
@@ -34,22 +37,30 @@ kind = ["speech", "news", "both"]
 async def lifespan(app: FastAPI):
     global db_pool, start_date, end_date, kind, politicians_list, political_groups_list, channels, programs, affiliations, topics
 
-    db_pool = await asyncpg.create_pool(
-        dsn=DATABASE_URL,
-        min_size=1,
-        max_size=10,
-    )
+    logger.info("AGCOM startup: opening PostgreSQL connection pool")
+    try:
+        db_pool = await asyncpg.create_pool(
+            dsn=DATABASE_URL,
+            min_size=1,
+            max_size=10,
+            timeout=STARTUP_CONNECT_TIMEOUT,
+        )
+    except (OSError, asyncio.TimeoutError, asyncpg.PostgresError, asyncpg.InterfaceError) as exc:
+        raise RuntimeError(f"PostgreSQL pool startup failed ({type(exc).__name__})") from None
 
-    static_data = await get_static_data()
-    politicians_list = static_data["politicians"]
-    political_groups_list = static_data["political_groups"]
-    channels = static_data["channels"]
-    programs = static_data["programs"]
-    affiliations = static_data["affiliations"]
-    topics = static_data["topics"]
+    try:
+        logger.info("AGCOM startup: loading filter values from PostgreSQL")
+        static_data = await get_static_data()
+        politicians_list = static_data["politicians"]
+        political_groups_list = static_data["political_groups"]
+        channels = static_data["channels"]
+        programs = static_data["programs"]
+        affiliations = static_data["affiliations"]
+        topics = static_data["topics"]
 
-    yield
-    await db_pool.close()
+        yield
+    finally:
+        await db_pool.close()
 
 
 async def query_postgresql(query: str, params: tuple = None):
@@ -77,8 +88,22 @@ async def get_min_max_dates():
 
 def get_min_max_dates_sync():
     query = f"""SELECT MIN(day), MAX(day) FROM {TABLE_NAME};"""
-    result = query_postgresql_sync(query)
-    return result[0][0].strftime('%Y/%m/%d'), result[0][1].strftime('%Y/%m/%d')
+    logger.info("AGCOM startup: connecting to PostgreSQL")
+    try:
+        with closing(psycopg2.connect(DATABASE_URL, connect_timeout=STARTUP_CONNECT_TIMEOUT)) as conn:
+            logger.info("AGCOM startup: reading date range from PostgreSQL")
+            with conn.cursor() as cursor:
+                cursor.execute("SET LOCAL statement_timeout = '30s'")
+                cursor.execute(query)
+                first_day, last_day = cursor.fetchone()
+    except psycopg2.Error as exc:
+        sqlstate = exc.pgcode or "unavailable"
+        raise RuntimeError(
+            f"PostgreSQL date initialization failed ({type(exc).__name__}, SQLSTATE {sqlstate})"
+        ) from None
+    if first_day is None or last_day is None:
+        raise RuntimeError("PostgreSQL records table contains no dated records")
+    return first_day.strftime('%Y/%m/%d'), last_day.strftime('%Y/%m/%d')
 
 start_date, end_date = get_min_max_dates_sync()
 
