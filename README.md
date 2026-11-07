@@ -7,6 +7,15 @@ The project aims to make this data more accessible through the creation of RestA
 
 <img src="screenshots/logo.svg" width="150px" align="right">
 
+## PostgreSQL configuration
+
+Set `DATABASE_URL` in the environment before running the web app or the data parser.
+Use the PostgreSQL connection URL for the database that contains the AGCOM data.
+For the Render web service, set `DATABASE_URL` in the service's Environment settings.
+For the daily GitHub Actions workflow, add a repository Actions secret named `DATABASE_URL`
+with a connection URL reachable from the GitHub-hosted runner.
+Keep the connection URL out of Git.
+
 # documentation
 - reference 
 https://www.agcom.it/pluralismo-politico-sociale-in-televisione

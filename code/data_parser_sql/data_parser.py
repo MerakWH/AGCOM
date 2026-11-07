@@ -13,13 +13,9 @@ import chardet
 import sys
 
 
-db_config = {
-    'dbname': 'agcom_dati_monitoraggio_mr2f',
-    'user': 'agcom_dati_monitoraggio_mr2f_user',
-    'password': '6MMMPLGLTpESi1js8gyIzFf20hxrRpqW',
-    'host': 'dpg-d1gl8onfte5s738q1160-a.frankfurt-postgres.render.com',  
-    'port': '5432'
-}
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("Set the DATABASE_URL environment variable before starting AGCOM.")
 
 # Intestazioni per simulare un browser
 headers = {
@@ -55,15 +51,8 @@ def get_links():
 
 #FUNZIONE PER VEDERE SE I DATI DEL FILE E' GIA' STATO CARICATO SUL DATABASE
 def check_files(list_url):
+    conn = psycopg2.connect(DATABASE_URL)
     try:
-        # Connessione al database PostgreSQL
-        conn = psycopg2.connect(
-            dbname=db_config['dbname'],
-            user=db_config['user'],
-            password=db_config['password'],
-            host=db_config['host'],
-            port=db_config['port']
-        )
         cursor = conn.cursor()
         print('connessione avvenuta!')
 
@@ -98,7 +87,6 @@ def check_files(list_url):
         print(f"Errore durante il check dei files: {e}")
 
     finally:
-        cursor.close()
         conn.close()
         
     return final_list
@@ -252,15 +240,8 @@ def fix_encoding(input_file):
 
 #METODO PER INSERIRE I DATI DEI FILE CSV NEL SERVER POSTGRESQL
 def insert_data_postgresql(csv_file_list):
+    conn = psycopg2.connect(DATABASE_URL)
     try:
-        # Connessione al database PostgreSQL
-        conn = psycopg2.connect(
-            dbname=db_config['dbname'],
-            user=db_config['user'],
-            password=db_config['password'],
-            host=db_config['host'],
-            port=db_config['port']
-        )
         cursor = conn.cursor()
         print('connessione avvenuta!')
 
@@ -309,7 +290,6 @@ def insert_data_postgresql(csv_file_list):
         print(f"Errore durante l'inserimento dei dati: {e}")
 
     finally:
-        cursor.close()
         conn.close()
 
 

@@ -8,6 +8,7 @@ Date: 2024-07-13
 
 import asyncpg
 import asyncio
+import os
 import psycopg2
 from typing import Annotated
 from fastapi import FastAPI, Query, HTTPException, Request
@@ -20,11 +21,9 @@ import datetime as dt
 from contextlib import asynccontextmanager
 warnings.filterwarnings('ignore')
 
-DB_HOST = "dpg-d1gl8onfte5s738q1160-a.frankfurt-postgres.render.com"
-DB_PORT = "5432"
-DB_NAME = "agcom_dati_monitoraggio_mr2f"
-DB_USER = "agcom_dati_monitoraggio_mr2f_user"
-DB_PASSWORD = "6MMMPLGLTpESi1js8gyIzFf20hxrRpqW"
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("Set the DATABASE_URL environment variable before starting AGCOM.")
 TABLE_NAME = "records"
 
 
@@ -36,11 +35,7 @@ async def lifespan(app: FastAPI):
     global db_pool, start_date, end_date, kind, politicians_list, political_groups_list, channels, programs, affiliations, topics
 
     db_pool = await asyncpg.create_pool(
-        host=DB_HOST,
-        port=DB_PORT,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
+        dsn=DATABASE_URL,
         min_size=1,
         max_size=10,
     )
@@ -64,20 +59,14 @@ async def query_postgresql(query: str, params: tuple = None):
     
 def query_postgresql_sync(query, params=None):
     try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD
-        )
+        conn = psycopg2.connect(DATABASE_URL)
         with conn.cursor() as cur:
             cur.execute(query, params)
             data = cur.fetchall()
         conn.close()
         return data
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading from PostgreSQL: {e}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error reading from PostgreSQL") from None
 
 # -------------------------------------------------------
 
@@ -244,7 +233,7 @@ async def get_politicians(
     request: Request,
     start_date_: str = Query(default=start_date),
     end_date_: str = Query(default=end_date),
-    kind_: str = Query(default="both", enum=kind),
+    kind_: str = Query(default="both", json_schema_extra={"enum": kind}),
     page: int = Query(default=1),
     page_size: int = Query(default=5000)
 ):
@@ -292,7 +281,7 @@ async def get_political_groups(
     request: Request,
     start_date_: str = Query(default=start_date, description="Start date"),
     end_date_: str = Query(default=end_date, description="End date"),
-    kind_: str = Query(default="both", description="Type of data", enum=kind),
+    kind_: str = Query(default="both", description="Type of data", json_schema_extra={"enum": kind}),
     page: int = Query(default=1, description="Page number"),
     page_size: int = Query(default=5000, description="Page size")
 ):
@@ -534,7 +523,7 @@ async def get_politician_topics(
     name: str,
     start_date_: str = Query(default=start_date),
     end_date_: str = Query(default=end_date),
-    kind_: str = Query(default="both", enum=kind),
+    kind_: str = Query(default="both", json_schema_extra={"enum": kind}),
     channel_: str = Query(default="all"),
     affiliation_: str = Query(default="all"),
     program_: str = Query(default="all"),
@@ -606,7 +595,7 @@ async def get_political_group_topics(
     name: str,
     start_date_: str = Query(default=start_date),
     end_date_: str = Query(default=end_date),
-    kind_: str = Query(default="both", enum=kind),
+    kind_: str = Query(default="both", json_schema_extra={"enum": kind}),
     channel_: str = Query(default="all"),
     program_: str = Query(default="all"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -677,7 +666,7 @@ async def get_politician_channels(
     name: str,
     start_date_: str = Query(default=start_date, description="Start date"),
     end_date_: str = Query(default=end_date, description="End date"),
-    kind_: str = Query(default="both", description="Type of data", enum=kind),
+    kind_: str = Query(default="both", description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default="all", description="Channel"),
     affiliation_: str = Query(default="all", description="Affiliation"),
     program_: str = Query(default="all", description="Program"),
@@ -749,7 +738,7 @@ async def get_political_group_channels(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default = "all", description="Channel"),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -909,7 +898,7 @@ async def get_interventions_politician_per_year(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default = "all", description="Channel"),
     affiliation_: str = Query(default = "all", description="Affiliation"),
     program_: str = Query(default = "all", description="Program"),
@@ -993,7 +982,7 @@ async def get_interventions_political_group_per_year(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default = "all", description="Channel"),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -1075,7 +1064,7 @@ async def get_interventions_politician_per_day(
     request: Request,
     name: str,
     year: str = Query(description="choose year"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default = "all", description="Channel"),
     affiliation_: str = Query(default = "all", description="Affiliation"),
     program_: str = Query(default = "all", description="Program"),
@@ -1165,7 +1154,7 @@ async def get_interventions_political_group_per_day(
     request: Request,
     name: str,
     year: str = Query(description="choose year"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default = "all", description="Channel"),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -1255,7 +1244,7 @@ async def get_politician_channels_programs(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default = "all", description="Channel"),
     affiliation_: str = Query(default = "all", description="Affiliation"),
     program_: str = Query(default = "all", description="Program"),
@@ -1329,7 +1318,7 @@ async def get_political_group_channels_programs(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default = "all", description="Channel"),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -1402,7 +1391,7 @@ async def get_channel_programs_politician(
     channel: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     affiliation_: str = Query(default = "all", description="Affiliation"),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -1477,7 +1466,7 @@ async def get_channel_programs_political_group(
     channel: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
 ):
@@ -1551,7 +1540,7 @@ async def get_minutes_channel_per_politician(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     affiliation_: str = Query(default = "all", description="Affiliation"),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -1670,7 +1659,7 @@ async def get_minutes_channel_per_political_group(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
 ):
@@ -1788,7 +1777,7 @@ async def get_minutes_channel_per_politician(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     affiliation_: str = Query(default = "all", description="Affiliation"),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -1890,7 +1879,7 @@ async def get_minutes_channel_per_political_group(
     name: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
 ):
@@ -1990,7 +1979,7 @@ async def get_channels_programs_topics_politician(
     name: str,
     start_date_: str = Query(default=start_date, description="Start date"),
     end_date_: str = Query(default=end_date, description="End date"),
-    kind_: str = Query(default="both", description="Type of data", enum=kind),
+    kind_: str = Query(default="both", description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default="all", description="Channel"),
     affiliation_: str = Query(default="all", description="Affiliation"),
     program_: str = Query(default = "all", description="Program"),
@@ -2083,7 +2072,7 @@ async def get_channels_programs_topics_political_group(
     name: str,
     start_date_: str = Query(default=start_date, description="Start date"),
     end_date_: str = Query(default=end_date, description="End date"),
-    kind_: str = Query(default="both", description="Type of data", enum=kind),
+    kind_: str = Query(default="both", description="Type of data", json_schema_extra={"enum": kind}),
     channel_: str = Query(default="all", description="Channel"),
     program_: str = Query(default="all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -2175,7 +2164,7 @@ async def get_channel_politicians(
     channel: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     name_: str = Query(default = "all", description="Politician"),
     affiliation_: str = Query(default = "all", description="Affiliation"),
     program_: str = Query(default = "all", description="Program"),
@@ -2240,7 +2229,7 @@ async def get_channel_political_groups(
     channel: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     name_: str = Query(default = "all", description="Political group"),
     program_: str = Query(default = "all", description="Program"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -2305,7 +2294,7 @@ async def get_program_politicians(
     program: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     name_: str = Query(default = "all", description="Politician"),
     affiliation_: str = Query(default = "all", description="Affiliation"),
     channel_: str = Query(default = "all", description="Channel"),
@@ -2370,7 +2359,7 @@ async def get_program_political_groups(
     program: str,
     start_date_: str = Query(default = start_date, description="Start date"),
     end_date_: str = Query(default = end_date, description="End date"),
-    kind_: str = Query(default = "both" , description="Type of data", enum = kind),
+    kind_: str = Query(default = "both" , description="Type of data", json_schema_extra={"enum": kind}),
     name_: str = Query(default = "all", description="Political group"),
     channel_: str = Query(default = "all", description="Channel"),
     topics_list: Annotated[list[str], Query()] = [],
@@ -2432,7 +2421,7 @@ async def get_politician_getall(
     request: Request,
     name: str,
     date_: str = Query(default="all"),
-    kind_: str = Query(default="both", enum=kind),
+    kind_: str = Query(default="both", json_schema_extra={"enum": kind}),
     channel_: str = Query(default="all"),
     affiliation_: str = Query(default="all"),
     program_: str = Query(default="all"),
@@ -2503,7 +2492,7 @@ async def get_political_group_getall(
     request: Request,
     name: str,
     date_: str = Query(default="all"),
-    kind_: str = Query(default="both", enum=kind),
+    kind_: str = Query(default="both", json_schema_extra={"enum": kind}),
     channel_: str = Query(default="all"),
     affiliation_: str = Query(default="all"),
     program_: str = Query(default="all"),

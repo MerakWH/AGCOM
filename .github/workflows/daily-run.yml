@@ -20,7 +20,9 @@ jobs:
 
     - name: Installa dipendenze
       run: |
-        pip install -r requirements.txt || true
+        pip install -r requirements.txt
 
     - name: Esegui data_parser.py
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: python code/data_parser_sql/data_parser.py
