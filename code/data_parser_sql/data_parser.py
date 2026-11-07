@@ -1,16 +1,17 @@
 import requests
 import os
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 import xml.etree.ElementTree as ET
 import csv
+from contextlib import closing
 from datetime import datetime
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import psycopg2
 from corrections import corrections_
 import pandas as pd
 import numpy as np
-import chardet
-import sys
 
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -31,7 +32,7 @@ def get_links():
     while True:
         url = base_url + str(i)     #URL di ogni pagina
         
-        response = requests.get(url, headers=headers)       # Richiesta HTTP per ottenere il contenuto della pagina
+        response = requests.get(url, headers=headers, timeout=60)       # Richiesta HTTP per ottenere il contenuto della pagina
         response.raise_for_status()     # Controlla se la richiesta ha avuto successo
 
         soup = BeautifulSoup(response.text, 'html.parser')      # Parsing del contenuto HTML
@@ -43,67 +44,22 @@ def get_links():
         if len(filtered_links) == 0:    # Se non trova più link esci
             break
 
-        filtered_links = list(set(filtered_links))  # rimuove valori uguali
         list_url.extend(filtered_links)     # aggiungi alla lista finale
         i=i+1   # prossima pagina
-    return list_url
-
-
-#FUNZIONE PER VEDERE SE I DATI DEL FILE E' GIA' STATO CARICATO SUL DATABASE
-def check_files(list_url):
-    conn = psycopg2.connect(DATABASE_URL)
-    try:
-        cursor = conn.cursor()
-        print('connessione avvenuta!')
-
-        create_table_query = """
-        CREATE TABLE IF NOT EXISTS files_list (
-            filename TEXT
-        )
-        """
-
-        cursor.execute(create_table_query)
-        conn.commit()
-
-        retrieve_filenames_query = """
-        SELECT filename
-        FROM files_list
-        """
-
-        cursor.execute(retrieve_filenames_query)
-        filenames_ = cursor.fetchall()
-        filenames = [url[0] for url in filenames_]
-
-        final_list = []
-
-        for file in list_url:
-            if file not in filenames:
-                final_list.append(file)
-    
-        cursor.executemany("INSERT INTO files_list (filename) VALUES (%s)", [(f,) for f in final_list])
-        conn.commit()
-
-    except Exception as e:
-        print(f"Errore durante il check dei files: {e}")
-
-    finally:
-        conn.close()
-        
-    return final_list
+    if not list_url:
+        raise RuntimeError("Nessuna pagina di monitoraggio trovata sul sito AGCOM.")
+    return list(dict.fromkeys(list_url))
 
 
 #FUNZIONE PER TROVARE IL LINK PER IL FILE XML PER OGNI PAGINA TROVATA
 def find_xml_link(page_url):
-    try:
-        page_response = requests.get(page_url, headers=headers)
-        page_response.raise_for_status()
-        page_soup = BeautifulSoup(page_response.text, 'html.parser')
-        xml_link = page_soup.find_all('a', href=True)
-        filtered_links = [urljoin(page_url, link['href']) for link in xml_link if "/sites/default/files/" in link['href']]
-        return filtered_links[0]
-    except Exception as e:
-        print(f"Errore nel trovare XML in {page_url}: {e}")
-    return None
+    response = requests.get(page_url, headers=headers, timeout=60)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'html.parser')
+    for link in soup.find_all('a', href=True):
+        if urlsplit(link['href']).path.lower().endswith(".xml"):
+            return urljoin(page_url, link['href'])
+    raise RuntimeError(f"Nessun allegato XML in {page_url}")
 
 
 #FUNZIONE PER TRASFORMARE LE DATE (STRINGHE) IN DATETIME
@@ -134,8 +90,7 @@ def from_xml_to_csv(file_xml):
     tree = ET.parse(file_xml)
     root = tree.getroot()
 
-    url_csv = file_xml[:-3] + 'csv'
-    csv_filenames.append(url_csv)
+    url_csv = file_xml.with_suffix(".csv")
 
     with open(url_csv, 'w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
@@ -179,130 +134,68 @@ def from_xml_to_csv(file_xml):
 
             writer.writerow([channel, program, day, lastname, name, affiliation, topic, duration, kind, fullname])
 
-    print("Conversione completata!")
+    return url_csv
 
 
 #METODO PER SCARICARE I FILE XML, CONVERTIRLI IN CSV, ED ELIMINARE GLI XML
-def create_csv(link):
-    directory_name = os.path.dirname(os.path.realpath(__file__))
-
-    # Ottieni il nome del file dall'URL
-    nome_file = os.path.basename(link)
-    percorso_file = os.path.join(directory_name, nome_file)
-
-    # Scarica il file
-    response = requests.get(link, headers=headers)
-    if response.status_code == 200:
-        with open(percorso_file, 'wb') as f:
-            f.write(response.content)
-        print(f"File {nome_file} scaricato.")
-            
-        from_xml_to_csv(nome_file)
-    
-        # Elimina il file subito dopo
-        os.remove(percorso_file)
-        print(f"File {nome_file} eliminato.")
-    else:
-        print(f"Errore nel download di {nome_file}: {response.status_code}")
-
-
-#METODO PER RIMUOVERE I FILE CSV
-def remove_csv(file):
-    if file.endswith(".csv") and os.path.isfile(file):
-        try:
-            os.remove(file)
-            print(f"File rimosso: {file}")
-        except Exception as e:
-            print(f"Errore nella rimozione di {file}: {e}")
-    else:
-        print(f"File non trovato o non valido: {file}")
-
-
-#METODO PER CORREGGERE L'ENCODING IN UTF-8
-def fix_encoding(input_file):
-    # Leggi il file in modalità binaria per rilevare la codifica
-    with open(input_file, 'rb') as f:
-        raw_data = f.read()
-        result = chardet.detect(raw_data)  # Usa chardet per rilevare la codifica
-        detected_encoding = result['encoding']
-        print(f"Codifica rilevata per {input_file}: {detected_encoding}")
-
-    # Se la codifica è diversa da UTF-8, convertila
-    if detected_encoding.lower() != 'utf-8':
-        with open(input_file, 'r', encoding=detected_encoding) as f:
-            content = f.read()
-        with open(input_file, 'w', encoding='utf-8') as f:
-            f.write(content)
-        print(f"File {input_file} convertito correttamente in UTF-8.")
-    else:
-        print(f"Il file {input_file} è già in UTF-8.")
+def create_csv(link, directory):
+    response = requests.get(link, headers=headers, timeout=60)
+    response.raise_for_status()
+    xml_path = directory / "source.xml"
+    xml_path.write_bytes(response.content)
+    return from_xml_to_csv(xml_path)
 
 
 #METODO PER INSERIRE I DATI DEI FILE CSV NEL SERVER POSTGRESQL
-def insert_data_postgresql(csv_file_list):
-    conn = psycopg2.connect(DATABASE_URL)
-    try:
-        cursor = conn.cursor()
-        print('connessione avvenuta!')
+def insert_data_postgresql(page_urls):
+    with closing(psycopg2.connect(DATABASE_URL)) as conn, conn.cursor() as cursor, TemporaryDirectory() as directory:
+        with conn:
+            # Impedisce a due parser di importare gli stessi file contemporaneamente.
+            cursor.execute("SELECT pg_advisory_lock(hashtext(%s))", ("agcom:data_parser",))
+            cursor.execute("CREATE TABLE IF NOT EXISTS files_list (filename TEXT)")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS records (
+                    channel TEXT,
+                    program TEXT,
+                    day DATE,
+                    lastname TEXT,
+                    name TEXT,
+                    affiliation TEXT,
+                    topic TEXT,
+                    duration INTEGER,
+                    kind TEXT,
+                    fullname TEXT
+                )
+            """)
+            cursor.execute("SELECT filename FROM files_list")
+            loaded_urls = {row[0] for row in cursor.fetchall()}
 
-        create_table_query = """
-        CREATE TABLE IF NOT EXISTS records (
-            channel TEXT,
-            program TEXT,
-            day DATE,
-            lastname TEXT,
-            name TEXT,
-            affiliation TEXT,
-            topic TEXT,
-            duration INTEGER,
-            kind TEXT,
-            fullname TEXT
-        )
-        """
-
-        cursor.execute(create_table_query)
-        conn.commit()
-
-        for csv_file in csv_file_list:
-            #Modifica caratteri sbagliati
+        for page_url in page_urls:
+            if page_url in loaded_urls:
+                continue
+            csv_file = create_csv(find_xml_link(page_url), Path(directory))
             df = pd.read_csv(csv_file)
+            if df.empty:
+                raise RuntimeError(f"Nessun record valido in {page_url}")
             df.replace(corrections_, regex=False, inplace=True)
             df.loc[(df['name'] == 'Antonio') & (df['lastname'] == "D'Al�"), 'lastname'] = "D'Alì"
             df.loc[(df['name'] == 'Ciro') & (df['lastname'] == "D'Al�"), 'lastname'] = "D'Alò"
             df['fullname'] = np.where(df['name'] == 'Soggetto Collettivo', 
                       df['lastname'], 
                       df['name'] + ' ' + df['lastname'])
-            df.to_csv(csv_file, index=False)
+            df.to_csv(csv_file, index=False, encoding="utf-8")
 
-            fix_encoding(csv_file)
+            with conn, csv_file.open(encoding="utf-8", newline="") as file:
+                cursor.copy_expert("COPY records FROM STDIN WITH CSV HEADER", file)
+                cursor.execute("INSERT INTO files_list (filename) VALUES (%s)", (page_url,))
+            print(f"Importate {len(df)} righe da {page_url}", flush=True)
 
-            # Apertura del file CSV e inserimento dati
-            with open(csv_file, 'r', encoding='utf-8') as file:
-
-                # Costruzione della query SQL
-                cursor.copy_expert(f"COPY records FROM STDIN WITH CSV HEADER DELIMITER ',' ENCODING 'UTF8'", file)
-                conn.commit()
-            remove_csv(csv_file)
-
-        print("Dati inseriti con successo.")
-
-    except Exception as e:
-        print(f"Errore durante l'inserimento dei dati: {e}")
-
-    finally:
-        conn.close()
+        cursor.execute("SELECT COUNT(*), MIN(day), MAX(day) FROM records")
+        count, first_day, last_day = cursor.fetchone()
+        if count == 0:
+            raise RuntimeError("La tabella records è vuota dopo l'importazione.")
+        print(f"Totale nel database: {count} righe dal {first_day} al {last_day}.")
 
 
-
-csv_filenames = []
-
-all_link_list = get_links()
-link_list = check_files(all_link_list)
-if len(link_list) == 0:
-    print("I file condivisi da AGCOM sono già tutti caricati!")
-    sys.exit(0)
-for link in link_list:
-    xml_link = find_xml_link(link)
-    create_csv(xml_link)
-
-insert_data_postgresql(csv_filenames)
+if __name__ == "__main__":
+    insert_data_postgresql(get_links())
